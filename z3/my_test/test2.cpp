@@ -6,11 +6,11 @@
 #include "test1.h"
 
 void MyFunc() {
-    
+    test();
     
     
 }
 
-int main(){
+/*int main(){
 	MyFunc();
-}
+}*/
