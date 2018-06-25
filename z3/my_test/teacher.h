@@ -3,31 +3,7 @@
 #include <tuple>
 #include <typeinfo>
 #include "z3++.h"
-#include "test1.h"
-struct counterexample_struct
-{
-	bool found;
-};
-struct initial_counterexample_struct : counterexample_struct
-{
-	std::vector<int> initial_ce;	
-};
 
-struct safe_counterexample_struct : counterexample_struct
-{
-	std::vector<int> safe_ce;
-};
-
-
-struct existential_counterexample_struct : counterexample_struct
-{
-	std::vector<std::vector<int>> existential_ce;
-};
-
-struct universal_counterexample_struct : counterexample_struct
-{
-	std::vector<std::tuple<std::vector<int>,std::vector<int>>> universal_ce;
-};
 void check(const z3::expr & e, z3::context & ctx)
 {
 	auto solver = z3::solver(ctx);
@@ -40,10 +16,9 @@ void check(const z3::expr & e, z3::context & ctx)
 	}
 }
 
-initial_counterexample_struct check_initial_condition(const z3::expr & hypothesis, const z3::expr & initial_vertices, z3::context & context, z3::expr_vector variables)
+std::vector<int> check_initial_condition(const z3::expr & hypothesis, const z3::expr & initial_vertices, z3::context & context, z3::expr_vector variables)
 {
-	initial_counterexample_struct a;
-	a.found = false;
+
 	// initial_vertices subset hypothesis
 	std::vector<int> result;
 	auto solver = z3::solver(context);
@@ -51,7 +26,6 @@ initial_counterexample_struct check_initial_condition(const z3::expr & hypothesi
 	solver.add(!check);
 	if (solver.check() == z3::unsat) {
 		std::cout << "Hypothesis holds for initial condition!" << std::endl;
-		return a;
 	}
 	else {
 		auto m = solver.get_model();
@@ -73,14 +47,12 @@ initial_counterexample_struct check_initial_condition(const z3::expr & hypothesi
 		}
 		std::cout << "SOL: " << sol << "\n";
 		std::cout << "counterexample for initial condition!:\n" << solver.get_model() << "\n";
-		a.found = true;
-		a.initial_ce = result;
 	}
+	return result;
 }
-safe_counterexample_struct check_safe_condition(const z3::expr & hypothesis, const z3::expr & safe_vertices, z3::context & context, z3::expr_vector variables)
+std::vector<int> check_safe_condition(const z3::expr & hypothesis, const z3::expr & safe_vertices, z3::context & context, z3::expr_vector variables)
 {	
-	safe_counterexample_struct a;
-	a.found = false;
+
 	// wenn hypothesis subset safe_vertices 
 	std::vector<int> result;
 	auto solver = z3::solver(context);
@@ -88,7 +60,6 @@ safe_counterexample_struct check_safe_condition(const z3::expr & hypothesis, con
 	solver.add(!check);
 	if (solver.check() == z3::unsat) {
 		std::cout << "Hypothesis holds for safe condition!!" << std::endl;
-		return a;
 	}
 	else {
 		auto m = solver.get_model();
@@ -109,19 +80,18 @@ safe_counterexample_struct check_safe_condition(const z3::expr & hypothesis, con
 		{
 			std::cout << i << "LÖSUNG: " << result[i] << std::endl;
 		}
-		a.found = true;
-		a.safe_ce = result;
 		std::cout << "counterexample for safe condition!:\n" << solver.get_model() << "result: " << result[0] << "\n";
-		return a;
 	}
+	return result;
 }
 
-std::vector<std::vector<int>> build_counterexample_existential(const z3::expr & counterexample,const std::vector<int> right, const z3::expr & edges, z3::context & context, const z3::expr_vector variables, const z3::expr_vector variables_dash, const z3::expr_vector all_variables, const int n)
+std::vector<std::vector<int>> build_counterexample(const z3::expr & counterexample,const std::vector<int> right, const z3::expr & edges, z3::context & context, const z3::expr_vector variables, const z3::expr_vector variables_dash, const z3::expr_vector all_variables, const int n)
 {
 	// pushe alle vektoren in result, bis n erreicht, dann den mitgegeben zusätzlich
 	std::vector<std::vector<int>> result;
 	auto solver = z3::solver(context);
 	solver.add(counterexample);
+	result.push_back(right);
 	for(int i = 0; i < n; i++){
 		if (solver.check() == z3::sat){
 			auto m = solver.get_model();
@@ -157,17 +127,15 @@ std::vector<std::vector<int>> build_counterexample_existential(const z3::expr & 
 			break;
 		}
 	}
-	result.push_back(right);
 	return result;
 }
 
-existential_counterexample_struct existential_check(const z3::expr & hypothesis, z3::expr & hypothesis_edge_nodes, 
+std::vector<std::vector<int>> existential_check(const z3::expr & hypothesis, z3::expr & hypothesis_edge_nodes, 
 const z3::expr & vertices, const z3::expr & vertices_dash, const z3::expr & vertices_player0, 
 const z3::expr & edges, z3::context & context, z3::expr_vector all_variables,
  z3::expr_vector variables, z3::expr_vector variables_dash, const int & n)
 {
-	existential_counterexample_struct a;
-	a.found = false;
+	std::vector<std::vector<int>> result;
 	auto solver = z3::solver(context);
 	
 	z3::expr nodes_in_V0_and_W_without_successor_in_W = hypothesis && vertices_player0 && !exists(variables_dash,vertices && edges && hypothesis_edge_nodes);
@@ -185,22 +153,20 @@ const z3::expr & edges, z3::context & context, z3::expr_vector all_variables,
 			z3::expr test = context.bool_val(true);
 			for(int i = 0; i < sol.size(); i++){
 				test =  (test) && (all_variables[i] == m.eval(all_variables[i]));
-				// baue den ersten int vektor für das rechteste element
 				int j;
 				Z3_get_numeral_int(context, m.eval(variables[i]), &j);
 				std::cout << " teste hier was du machst EXISTENTIAL" << j <<std::endl;
 				tmp.push_back(j);
 			}
-			a.found = true;
-			a.existential_ce = build_counterexample_existential(test && edges, tmp, edges, context, variables,variables_dash, all_variables, n);
+			return build_counterexample(test && edges, tmp, edges, context, variables,variables_dash, all_variables, n);
 			//solver.add(!test);
 	}	
 	if (solver.check() == z3::unsat) {
 		std::cout << "Hypothesis holds for the existential condition" << std::endl;
-		return a;
+		return result;
 	}
 }
-std::vector<std::tuple<std::vector<int>,std::vector<int>>> build_counterexample_universal(const z3::expr & counterexample, const std::vector<int> & right, const z3::expr & edges, z3::context & context, const z3::expr_vector variables, const z3::expr_vector variables_dash, const z3::expr_vector all_variables, const int n)
+/*std::vector<std::tuple<std::vector<int>,std::vector<int>>> build_counterexample_universal(const z3::expr & counterexample, const std::vector<int> & right, const z3::expr & edges, z3::context & context, const z3::expr_vector variables, const z3::expr_vector variables_dash, const z3::expr_vector all_variables, const int n)
 {
 	// TODO : male dir den graphen auf und guck ob das stimmt was da raus kommt. danach existential
 	auto solver = z3::solver(context);
@@ -242,13 +208,13 @@ std::vector<std::tuple<std::vector<int>,std::vector<int>>> build_counterexample_
 		}
 	}
 	return result;
-}
-universal_counterexample_struct universal_check(const z3::expr & hypothesis, z3::expr & hypothesis_edge_nodes, 
+}*/
+std::vector<std::vector<int>> universal_check(const z3::expr & hypothesis, z3::expr & hypothesis_edge_nodes, 
 const z3::expr & vertices, const z3::expr & vertices_dash, const z3::expr & vertices_player1, 
 const z3::expr & edges, z3::context & context, z3::expr_vector all_variables,
  z3::expr_vector variables, z3::expr_vector variables_dash, const int n){
-	 universal_counterexample_struct a;
-	 a.found = false;
+	
+	std::vector<std::vector<int>> result;
 	auto solver = z3::solver(context);
 
 	z3::expr nodes_in_V1_and_W_without_successor_in_W =  vertices_player1 && hypothesis && exists(variables_dash,vertices && edges && !hypothesis_edge_nodes);
@@ -271,13 +237,13 @@ const z3::expr & edges, z3::context & context, z3::expr_vector all_variables,
 				std::cout << " teste hier was du machst " << j <<std::endl;
 				tmp.push_back(j);
 			}
-			a.found = true;
-			a.universal_ce = build_counterexample_universal(test && edges, tmp, edges, context, variables,variables_dash, all_variables, n);
+
+			return build_counterexample(test && edges, tmp, edges, context, variables,variables_dash, all_variables, n);
 			//solver.add(!test);
 	}	
 	if (solver.check() == z3::unsat) {
 		std::cout << "Hypothesis holds for the universal condition" << std::endl;
-		return a;
+		return result;
 	}
 }
 
@@ -294,24 +260,11 @@ void prove(z3::expr conjecture) {
         std::cout << "counterexample for safe condition!:\n" << s.get_model() << "\n";
     }
 }
-counterexample_struct learn(const z3::expr & hypothesis, z3::expr & hypothesis_edge_nodes, 
-const z3::expr & vertices, const z3::expr & vertices_dash, 
-const z3::expr & initial_vertices, const z3::expr & safe_vertices,
- const z3::expr & vertices_player0, const z3::expr & vertices_player1, 
-const z3::expr & edges, z3::context & context, z3::expr_vector all_variables,
- z3::expr_vector variables, z3::expr_vector variables_dash, const int n){
-	// implement finding a counterexample and returning it!
-	counterexample_struct result;
-	check_initial_condition(hypothesis, initial_vertices,context, variables);
-	check_safe_condition(hypothesis, safe_vertices, context, variables);
-	existential_check(hypothesis, hypothesis_edge_nodes, vertices, vertices_dash,vertices_player0, edges, context, all_variables, variables, variables_dash, n);
-	universal_check(hypothesis, hypothesis_edge_nodes, vertices, vertices_dash,vertices_player1, edges, context, all_variables, variables, variables_dash, n);
 
-}
 void test(){
 		std::cout << "testing..." << std::endl;
 }
-int main()
+/*int main()
 {
 
 	z3::context ctx;
@@ -369,5 +322,5 @@ int main()
 	}
 	existential_check(hypothesis, hypothesis_edges_test, vertices, vertices_dash,vertices_player0, edges, ctx, all_variables, variables, variables_dash, n);
 	universal_check(hypothesis, hypothesis_edges_test, vertices, vertices_dash,vertices_player1, edges, ctx, all_variables, variables, variables_dash, n);
-}
+}*/
 

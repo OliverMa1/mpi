@@ -11,6 +11,6 @@ void MyFunc() {
     
 }
 
-/*int main(){
+int main(){
 	MyFunc();
-}*/
+}
