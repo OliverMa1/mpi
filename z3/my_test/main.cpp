@@ -3,7 +3,7 @@
 #include <tuple>
 #include <typeinfo>
 #include "z3++.h"
-#include "test1.h"
+#include "teacher.h"
 
 void MyFunc() {
     test();

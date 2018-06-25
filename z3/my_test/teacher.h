@@ -262,7 +262,7 @@ void prove(z3::expr conjecture) {
 }
 
 void test(){
-		std::cout << "testing..." << std::endl;
+		std::cout << "testing... the compiling" << std::endl;
 }
 /*int main()
 {
