@@ -36,16 +36,10 @@ std::vector<int> check_initial_condition(const z3::expr & hypothesis, const z3::
 			//std::cout<< "m[i]: " << m[i] << "v.arity()" << v.arity() << v.name() << " = " << m.get_const_interp(v) << std::endl;
 		}
 		for(int i = 0; i < sol.size(); i++){
-			std::cout << i << ": " << sol[i] << variables[i]<< ": " << m.eval(variables[i]) << "\n";
 			int j;
 			Z3_get_numeral_int(context, m.eval(variables[i]), &j);
 			result.push_back(j);
 		}
-		for (int i = 0; i < result.size(); i++)
-		{
-			std::cout << i << ": " << result[i] << std::endl;
-		}
-		std::cout << "SOL: " << sol << "\n";
 		std::cout << "counterexample for initial condition!:\n" << solver.get_model() << "\n";
 	}
 	return result;
@@ -67,20 +61,15 @@ std::vector<int> check_safe_condition(const z3::expr & hypothesis, const z3::exp
 		for (unsigned i = 0; i < m.size(); i++){
 			z3::func_decl v = m[i];	
 			sol.push_back(m.get_const_interp(v));
-			std::cout<< "m[i]: " << m[i] << "v.arity() " << v.arity() << v.name() << " = " << m.get_const_interp(v) << std::endl;
+			
 		}
-		std::cout << "SOL: " << sol << sol[1]<<"\n";
 		for(int i = 0; i < sol.size(); i++){
-			std::cout << i << ": " << sol[i] << variables[i]<< ": " << m.eval(variables[i]) << "\n";
 			int j;
 			Z3_get_numeral_int(context, m.eval(variables[i]), &j);
 			result.push_back(j);
 		}
-		for (int i = 0; i < result.size(); i++)
-		{
-			std::cout << i << "LÖSUNG: " << result[i] << std::endl;
-		}
-		std::cout << "counterexample for safe condition!:\n" << solver.get_model() << "result: " << result[0] << "\n";
+
+		std::cout << "counterexample for safe condition!:\n" << solver.get_model() << "\n";
 	}
 	return result;
 }
@@ -100,30 +89,23 @@ std::vector<std::vector<int>> build_counterexample(const z3::expr & counterexamp
 				z3::func_decl v = m[l];	
 				sol.push_back(m.get_const_interp(v));			
 			}
-			std::cout << "Model BUILD EXISTENTIAL:\n" << m << "\n";
 			z3::expr test = context.bool_val(true);
 			for(int j = 0; j < variables_dash.size(); j++){
-				std::cout << variables_dash[i] << std::endl;
 				test =  (test) && (variables_dash[i] == m.eval(variables_dash[i]));
 			}
 			std::vector<int> tmp;
 			for(int k = 0; k < variables_dash.size(); k++){
-				std::cout << "heeeeelo" << std::endl;
 				int j;
 				Z3_get_numeral_int(context, m.eval(variables_dash[k]), &j);
 				tmp.push_back(j);
 			}
-			for (int k = 0; k < tmp.size(); k++)
-			{
-				std::cout << k << " : " << tmp[k] << std::endl;
-			}
+
 			result.push_back(tmp);
 			solver.add(!test);
-			std::cout << "test:\n" << test << std::endl;
 			// add counterexample mit successor
 		}
 		else {
-			std::cout << "all successors found" << std::endl;
+			//std::cout << "all successors found" << std::endl;
 			break;
 		}
 	}
@@ -142,20 +124,19 @@ const z3::expr & edges, z3::context & context, z3::expr_vector all_variables,
 
 	solver.add(nodes_in_V0_and_W_without_successor_in_W);
 	if (solver.check()== z3::sat){
+			std::cout << "counterexample for existential condition!:\n" << solver.get_model() << "\n";
 			auto m = solver.get_model();
 			z3::expr_vector sol(context);
 			for (unsigned i = 0; i < m.size(); i++){
 				z3::func_decl v = m[i];	
 				sol.push_back(m.get_const_interp(v));
 			}
-			std::cout << "counterexample for existential condition!:\n" << solver.get_model() << "\n";
 			std::vector<int> tmp;
 			z3::expr test = context.bool_val(true);
 			for(int i = 0; i < sol.size(); i++){
 				test =  (test) && (all_variables[i] == m.eval(all_variables[i]));
 				int j;
 				Z3_get_numeral_int(context, m.eval(variables[i]), &j);
-				std::cout << " teste hier was du machst EXISTENTIAL" << j <<std::endl;
 				tmp.push_back(j);
 			}
 			return build_counterexample(test && edges, tmp, edges, context, variables,variables_dash, all_variables, n);
@@ -234,7 +215,6 @@ const z3::expr & edges, z3::context & context, z3::expr_vector all_variables,
 				test =  (test) && (variables[i] == m.eval(variables[i]));
 				int j;
 				Z3_get_numeral_int(context, m.eval(variables[i]), &j);
-				std::cout << " teste hier was du machst " << j <<std::endl;
 				tmp.push_back(j);
 			}
 
@@ -264,63 +244,5 @@ void prove(z3::expr conjecture) {
 void test(){
 		std::cout << "testing... the compiling" << std::endl;
 }
-/*int main()
-{
 
-	z3::context ctx;
-
-	auto four = ctx.int_val(4);
-	z3::expr x = ctx.int_const("x");
-	auto y = ctx.int_const("y");
-	z3::expr x_dash = ctx.int_const("x'");
-	auto y_dash = ctx.int_const("y'");
-	z3::expr_vector variables(ctx);
-	z3::expr_vector all_variables(ctx);
-	variables.push_back(x);
-	variables.push_back(y);
-	z3::expr_vector variables_dash(ctx);
-	variables_dash.push_back(x_dash);
-	variables_dash.push_back(y_dash);
-	all_variables.push_back(x);
-	all_variables.push_back(y);
-	all_variables.push_back(x_dash);
-	all_variables.push_back(y_dash);
-
-
-	z3::expr hypothesis_edges = (x_dash < 10 && y_dash == 2);
-	auto node_0 = ((x == 2) && (y == 2));
-	auto node_1 = ((x == 3) && (y == 3));
-	auto node_2 = ((x == 2) && (y == 3));
-	auto node_3 = ((x == 3) && (y == 2));
-	auto node_4 = ((x == 4) && (y == 2));
-	auto node_5 = ((x == 4) && (y == 4));
-	auto node_0_dash = ((x_dash == 2) && (y_dash == 2));
-	auto node_1_dash = ((x_dash == 3) && (y_dash == 3));
-	auto node_2_dash = ((x_dash == 2) && (y_dash == 3));
-	auto node_3_dash = ((x_dash == 3) && (y_dash == 2));
-	auto node_4_dash = ((x_dash == 4) && (y_dash == 2));
-	auto node_5_dash = ((x_dash == 4) && (y_dash == 4));
-	
-	z3::expr initial_vertices = node_0;
-	z3::expr safe_vertices = node_0 || node_4 || node_3;
-	auto vertices_player0 = node_0 || node_1 || node_5;
-	auto vertices_player1 = node_2 || node_3 || node_4;
-	auto vertices = node_0 || node_1 || node_2 || node_3 || node_4;//vertices_player0 || vertices_player1;
-	auto vertices_dash = vertices.substitute(variables,variables_dash);
-	auto edges = (node_0 && node_1_dash)|| (node_0 && node_2_dash) || (node_0 && node_3_dash) 
-	|| (node_0 && node_1_dash) || (node_3 && node_4_dash) || (node_4 && node_0_dash) || node_1 && node_3_dash || node_2 && node_3_dash || node_2 && node_0_dash || node_2 && node_1_dash || node_1 && node_5_dash || node_0 && node_5_dash;
-	//z3::expr hypothesis = vertices;
-	z3::expr hypothesis = node_0 || node_1 || node_4 || node_2;
-	z3:: expr hypothesis_edges_test = hypothesis.substitute(variables,variables_dash);
-	const int n = 10;
-	std::vector<int> test;
-	check_initial_condition(hypothesis, initial_vertices, ctx, variables);
-	test = check_safe_condition(hypothesis,safe_vertices,ctx,variables).safe_ce;
-	auto r = check_safe_condition(hypothesis,safe_vertices,ctx,variables).found;
-	for (int i = 0; i < test.size(); i++){
-		std::cout << "TEST für CE: " << test[i] << " " <<  r << std::endl;
-	}
-	existential_check(hypothesis, hypothesis_edges_test, vertices, vertices_dash,vertices_player0, edges, ctx, all_variables, variables, variables_dash, n);
-	universal_check(hypothesis, hypothesis_edges_test, vertices, vertices_dash,vertices_player1, edges, ctx, all_variables, variables, variables_dash, n);
-}*/
 
