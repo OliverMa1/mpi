@@ -2,24 +2,47 @@
 #include <fstream>
 #include <vector>
 #include <set>
-#include <tuple>
+#include <map>
+#include <iterator>
 #include <typeinfo>
 #include "z3++.h"
 #include "teacher.h"
 struct Counterexample
 {
 	std::vector<int> datapoints;
-	// 0 = false; 1 = true; 2 = ?
+	// 0 = ?; 1 = false; 2 = true
 	int classification;
-	
-	bool operator==(const Counterexample& c)
+	Counterexample(std::vector<int> dp, int c): datapoints(dp), classification(c){}
+	friend bool operator==(const Counterexample& c1, const Counterexample& c2)
 	{
-		std::cout << " = vergleichen! " << std::endl;
+		bool res;
+		res = c1.datapoints == c2.datapoints;
+		res &= c1.classification == c2.classification;
+		return res;
 	}
-	bool operator<(const Counterexample& c)
+	friend bool operator<(const Counterexample& c1, const Counterexample& c2)
 	{
-		std::cout << " < vergleichen! " << std::endl;
+		if (c1.datapoints == c2.datapoints)
+		{
+			if (c1.classification < c2.classification && c1.classification == 0)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return c1.datapoints < c2.datapoints;
+		}
 	}
+	friend std::ostream& operator<<(std::ostream & stream, const Counterexample & c)
+	{
+		stream << c.classification;
+		return stream;
+	} 
 };
 void prep(int  i)
 {
@@ -32,35 +55,36 @@ void prep(int  i)
 	}
 	myfile.close();
 }
-void store(const Counterexample  ce)
+void store(const Counterexample*  ce)
 {
 	
 }
 
-Counterexample create_initial_counterexample(const std::vector<int>  ce)
+Counterexample* create_initial_counterexample(const std::vector<int>  ce)
 {
-	Counterexample(a);
-	return a;
+	
+	return new Counterexample(ce,1);
 }
 
-Counterexample create_safe_counterexample(const std::vector<int>  ce)
+Counterexample* create_safe_counterexample(const std::vector<int>  ce)
 {
-	Counterexample(a);
-	return a;
+
+	return new Counterexample(ce,1);
 }
 
-Counterexample create_existential_counterexample(const std::vector<std::vector<int>>  ce)
+Counterexample* create_existential_counterexample(const std::vector<std::vector<int>>  ce)
 {
-	Counterexample(a);
-	return a;	
+	std::vector<int> a;
+	return new Counterexample(a,1);	
 }
-Counterexample create_universal_counterexample(const std::vector<std::vector<int>>  ce)
+Counterexample* create_universal_counterexample(const std::vector<std::vector<int>>  ce)
 {
-	Counterexample(a);
-	return a;	
+	std::vector<int> a;
+	return new Counterexample(a,1);		
 }
 int main()
 {
+	std::map<Counterexample*,int> counterexample_map;
 	prep(2);
 	z3::context ctx;
 
@@ -118,7 +142,7 @@ int main()
 		for (int i = 0; i < test1.size(); i++){
 			std::cout << "Initial: " << i << ": " << test1[i] << std::endl;
 		} 
-		Counterexample ce = create_initial_counterexample(test1);
+		Counterexample* ce = create_initial_counterexample(test1);
 		store(ce);
 	}
 	test2 = check_safe_condition(hypothesis,safe_vertices,ctx,variables);
@@ -129,8 +153,8 @@ int main()
 		for (int i = 0; i < test2.size(); i++){
 			std::cout << "Safe: " << i << ": " << test2[i] << std::endl;
 		}
-		Counterexample ce = create_safe_counterexample(test2); 
-		store(ce);
+		//Counterexample* ce = create_safe_counterexample(test2); 
+		//store(ce);
 	}
 	std::vector<std::vector<int>> new_test1;
 	std::vector<std::vector<int>> new_test2;
@@ -146,8 +170,8 @@ int main()
 				std::cout << "Ex: " << j << ": " << new_test1[i][j] << std::endl;	
 			}
 		} 
-		Counterexample ce = create_existential_counterexample(new_test1);
-		store(ce);
+		//Counterexample* ce = create_existential_counterexample(new_test1);
+		//store(ce);
 	}
 	new_test2 = universal_check(hypothesis, hypothesis_edges_test, vertices, vertices_dash,vertices_player1, edges, ctx, all_variables, variables, variables_dash, n);
 	if (new_test2.size() == 0){
@@ -160,15 +184,19 @@ int main()
 				std::cout << "Uni: " << j << ": " << new_test2[i][j] << std::endl;	
 			}
 		}
-		Counterexample ce = create_universal_counterexample(new_test2);
-		store(ce);
+		//Counterexample* ce = create_universal_counterexample(new_test2);
+		//store(ce);
 	}
 	std::ofstream myfile;
 	myfile.open("example.txt");
 	myfile << "Writing this to a file. \n";
 	myfile.close();
-	Counterexample(a);
-	Counterexample(b);
+	std::vector<int> c;
+	Counterexample *a = new Counterexample(c,0);
+	Counterexample *b = new Counterexample(c,1);
 	a==b;
 	a<b;
+	a -> classification = 3;
+	std::cout << " a: " << *a << std::endl;
+	counterexample_map.insert(std::make_pair(a,1));
 }
