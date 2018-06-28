@@ -7,17 +7,19 @@
 #include <typeinfo>
 #include "z3++.h"
 #include "teacher.h"
+
 struct Counterexample
 {
 	std::vector<int> datapoints;
-	// 0 = ?; 1 = false; 2 = true
+	// -1 = ?; 0 = false; 1 = true
 	int classification;
 	Counterexample(std::vector<int> dp, int c): datapoints(dp), classification(c){}
 	friend bool operator==(const Counterexample& c1, const Counterexample& c2)
 	{
 		bool res;
 		res = c1.datapoints == c2.datapoints;
-		res &= c1.classification == c2.classification;
+		// keine classification vergleichen -> ce mit unterschiedlichen classification sind gleich
+		// -> können nur eine in der map haben -> finden gleiche -> nutze < um ? durch true/false zu ersetzen wenn nötig
 		return res;
 	}
 	friend bool operator<(const Counterexample& c1, const Counterexample& c2)
@@ -40,10 +42,29 @@ struct Counterexample
 	}
 	friend std::ostream& operator<<(std::ostream & stream, const Counterexample & c)
 	{
-		stream << c.classification;
+		for (int i = 0; i < c.datapoints.size()-1; i++)
+		{
+			stream << c.datapoints[i] << ", ";
+		}
+		stream << c.datapoints[c.datapoints.size()-1];
+		if (c.classification == -1)
+		{
+			stream << " Classification: ?";
+		}
+		else if (c.classification == 0)
+		{
+			stream << " Classification: 0";
+		}
+		else
+		{
+			stream << " Classification: 1";
+		}
+
 		return stream;
 	} 
 };
+	std::map<Counterexample,int> counterexample_map;
+	std::map<int,Counterexample> position_map;
 void prep(int  i)
 {
 	std::ofstream myfile;
@@ -55,36 +76,85 @@ void prep(int  i)
 	}
 	myfile.close();
 }
-void store(const Counterexample*  ce)
+bool store(Counterexample  ce)
 {
-	
+	std::map<Counterexample, int>::iterator it = counterexample_map.find(ce);
+	if (it != counterexample_map.end())
+	{
+		//check ob jetztiges > gefundenes, ersetze dann (true, oder false ersetzen ?)
+		int position = it -> second;
+		std::cout << "Element vorhanden: " << ce << " at position: " << position << std::endl;
+		std::map<int,Counterexample>::iterator it_pos = position_map.find(position);
+		Counterexample ce_found = it_pos -> second;
+		if (ce_found < ce)
+		{
+			counterexample_map.erase(it);
+			position_map.erase(position);
+			counterexample_map.insert(std::make_pair(ce,position));
+			position_map.insert(std::make_pair(position,ce));
+			std::cout << "Bedingung verstärkt von: " << ce_found.classification << " -> " << ce.classification << std::endl; 
+		}
+		
+	}
+	else 
+	{
+		std::cout << "element nicht vorhanden" << std::endl;
+		counterexample_map.insert(std::make_pair(ce, counterexample_map.size()));
+		position_map.insert(std::make_pair(position_map.size(), ce));
+		std::cout << "Stored: " << ce << " at Position: " << counterexample_map.size()-1 << std::endl;
+	}
 }
 
-Counterexample* create_initial_counterexample(const std::vector<int>  ce)
-{
-	
-	return new Counterexample(ce,1);
+bool create_and_store_initial_counterexample(const std::vector<int>  ce)
+{	
+	return store(Counterexample(ce,0));
 }
 
-Counterexample* create_safe_counterexample(const std::vector<int>  ce)
+int create_and_store_safe_counterexample(const std::vector<int>  ce)
 {
-
-	return new Counterexample(ce,1);
+	return store(Counterexample(ce,1));
 }
-
-Counterexample* create_existential_counterexample(const std::vector<std::vector<int>>  ce)
+bool create_and_store_unclassified_counterexample(const std::vector<int> ce)
+{
+	return store(Counterexample(ce,-1));
+}
+bool create_and_store_existential_counterexample(const std::vector<std::vector<int>>  ce)
 {
 	std::vector<int> a;
-	return new Counterexample(a,1);	
+	std::vector<int> positions;
+	bool success = true;
+	for (int i = ce.size()-1; i >= 0; i--)
+	{
+		int position = create_and_store_unclassified_counterexample(ce[i]);
+		if (position == -1){
+			success = false;
+		}
+		positions.push_back(position);
+	}
+	// create horn_clausel(positions);
+	return success;	
 }
-Counterexample* create_universal_counterexample(const std::vector<std::vector<int>>  ce)
+bool create_and_store_universal_counterexample(const std::vector<std::vector<int>>  ce)
 {
 	std::vector<int> a;
-	return new Counterexample(a,1);		
+	bool success = true;
+	int position = create_and_store_unclassified_counterexample(ce[ce.size()-1]);
+	for (int i = ce.size()-2; i >= 0; i--)
+	{
+		std::vector<int> positions;
+		positions.push_back(position);
+		position = create_and_store_unclassified_counterexample(ce[i]);
+		if (position == -1){
+			success = false;
+		}
+		positions.push_back(position);
+		// create horn_clausel
+	}
+	return success;		
 }
 int main()
 {
-	std::map<Counterexample*,int> counterexample_map;
+
 	prep(2);
 	z3::context ctx;
 
@@ -129,7 +199,7 @@ int main()
 	auto edges = (node_0 && node_1_dash)|| (node_0 && node_2_dash) || (node_0 && node_3_dash) 
 	|| (node_0 && node_1_dash) || (node_3 && node_4_dash) || (node_4 && node_0_dash) || node_1 && node_3_dash || node_2 && node_3_dash || node_2 && node_0_dash || node_2 && node_1_dash || node_1 && node_5_dash || node_0 && node_5_dash;
 	//z3::expr hypothesis = vertices;
-	z3::expr hypothesis = node_0 || node_1 || node_4 || node_2;
+	z3::expr hypothesis =  node_1 || node_4 || node_2;
 	z3:: expr hypothesis_edges_test = hypothesis.substitute(variables,variables_dash);
 	const int n = 10;
 	std::vector<int> test1;
@@ -142,8 +212,7 @@ int main()
 		for (int i = 0; i < test1.size(); i++){
 			std::cout << "Initial: " << i << ": " << test1[i] << std::endl;
 		} 
-		Counterexample* ce = create_initial_counterexample(test1);
-		store(ce);
+		bool ce = create_and_store_initial_counterexample(test1);
 	}
 	test2 = check_safe_condition(hypothesis,safe_vertices,ctx,variables);
 	if (test2.size() == 0){
@@ -153,25 +222,24 @@ int main()
 		for (int i = 0; i < test2.size(); i++){
 			std::cout << "Safe: " << i << ": " << test2[i] << std::endl;
 		}
-		//Counterexample* ce = create_safe_counterexample(test2); 
-		//store(ce);
+		create_and_store_safe_counterexample(test2); 
+		create_and_store_safe_counterexample(test2); 
 	}
 	std::vector<std::vector<int>> new_test1;
 	std::vector<std::vector<int>> new_test2;
-	new_test2 = existential_check(hypothesis, hypothesis_edges_test, vertices, vertices_dash,vertices_player0, edges, ctx, all_variables, variables, variables_dash, n);
+	new_test1 = existential_check(hypothesis, hypothesis_edges_test, vertices, vertices_dash,vertices_player0, edges, ctx, all_variables, variables, variables_dash, n);
 	
 	if (new_test1.size() == 0){
 		std::cout << "Existential CE leer" << std::endl;
 	}
 	else {
 		for (int i = 0; i < new_test1.size(); i++){
-			//std::vector<int> a = (test[0]);
 			for (int j = 0; j < new_test1[i].size(); j++){
 				std::cout << "Ex: " << j << ": " << new_test1[i][j] << std::endl;	
 			}
 		} 
-		//Counterexample* ce = create_existential_counterexample(new_test1);
-		//store(ce);
+		create_and_store_existential_counterexample(new_test1);
+		;
 	}
 	new_test2 = universal_check(hypothesis, hypothesis_edges_test, vertices, vertices_dash,vertices_player1, edges, ctx, all_variables, variables, variables_dash, n);
 	if (new_test2.size() == 0){
@@ -179,24 +247,23 @@ int main()
 	}
 	else {
 		for (int i = 0; i < new_test2.size(); i++){
-			//std::vector<int> a = (test[0]);
 			for (int j = 0; j < new_test2[i].size(); j++){
 				std::cout << "Uni: " << j << ": " << new_test2[i][j] << std::endl;	
 			}
 		}
-		//Counterexample* ce = create_universal_counterexample(new_test2);
-		//store(ce);
+		create_and_store_universal_counterexample(new_test2);
+		
 	}
 	std::ofstream myfile;
 	myfile.open("example.txt");
 	myfile << "Writing this to a file. \n";
 	myfile.close();
-	std::vector<int> c;
+	/*std::vector<int> c;
 	Counterexample *a = new Counterexample(c,0);
 	Counterexample *b = new Counterexample(c,1);
 	a==b;
 	a<b;
 	a -> classification = 3;
 	std::cout << " a: " << *a << std::endl;
-	counterexample_map.insert(std::make_pair(a,1));
+	//counterexample_map.insert(std::make_pair(&a,1));*/
 }
