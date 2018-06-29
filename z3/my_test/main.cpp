@@ -18,27 +18,11 @@ struct Counterexample
 	{
 		bool res;
 		res = c1.datapoints == c2.datapoints;
-		// keine classification vergleichen -> ce mit unterschiedlichen classification sind gleich
-		// -> können nur eine in der map haben -> finden gleiche -> nutze < um ? durch true/false zu ersetzen wenn nötig
 		return res;
 	}
 	friend bool operator<(const Counterexample& c1, const Counterexample& c2)
 	{
-		if (c1.datapoints == c2.datapoints)
-		{
-			if (c1.classification < c2.classification && c1.classification == 0)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		else
-		{
-			return c1.datapoints < c2.datapoints;
-		}
+		return c1.datapoints < c2.datapoints;
 	}
 	friend std::ostream& operator<<(std::ostream & stream, const Counterexample & c)
 	{
@@ -49,15 +33,15 @@ struct Counterexample
 		stream << c.datapoints[c.datapoints.size()-1];
 		if (c.classification == -1)
 		{
-			stream << " Classification: ?";
+			stream << ", ?";
 		}
 		else if (c.classification == 0)
 		{
-			stream << " Classification: 0";
+			stream << ", 0";
 		}
 		else
 		{
-			stream << " Classification: 1";
+			stream << ", 1";
 		}
 
 		return stream;
@@ -65,6 +49,7 @@ struct Counterexample
 };
 	std::map<Counterexample,int> counterexample_map;
 	std::map<int,Counterexample> position_map;
+	std::vector<Counterexample> counterexample_vector;
 void prep(int  i)
 {
 	std::ofstream myfile;
@@ -76,6 +61,18 @@ void prep(int  i)
 	}
 	myfile.close();
 }
+
+bool write()
+{
+	std::ofstream myfile;
+	myfile.open("dillig12.bpl.data");
+	for (int i = 0; i < counterexample_vector.size()-1;i++)
+	{
+		myfile << counterexample_vector[i] << "\n";
+	}
+	myfile << counterexample_vector[counterexample_vector.size()-1];
+	myfile.close();	
+}
 bool store(Counterexample  ce)
 {
 	std::map<Counterexample, int>::iterator it = counterexample_map.find(ce);
@@ -83,16 +80,26 @@ bool store(Counterexample  ce)
 	{
 		//check ob jetztiges > gefundenes, ersetze dann (true, oder false ersetzen ?)
 		int position = it -> second;
-		std::cout << "Element vorhanden: " << ce << " at position: " << position << std::endl;
+		std::cout << "Element vorhanden: " << it->first << " at position: " << position << std::endl;
 		std::map<int,Counterexample>::iterator it_pos = position_map.find(position);
+		std::cout << (position_map.find(position)-> second) << std::endl;
 		Counterexample ce_found = it_pos -> second;
-		if (ce_found < ce)
+		std::cout << "Test: " << "Found: " << ce_found << " Input: " << ce << " erg: " << (ce_found < ce) << std::endl;
+		if (ce_found.classification == -1 && ce_found.classification < ce.classification)
 		{
-			counterexample_map.erase(it);
-			position_map.erase(position);
+			position_map.at(position) = ce;
+			counterexample_map.erase(ce);
 			counterexample_map.insert(std::make_pair(ce,position));
-			position_map.insert(std::make_pair(position,ce));
+			counterexample_vector[position] = ce;
+			std::cout << "Änderung von position map: " << (position_map.find(position)-> second) << std::endl;
 			std::cout << "Bedingung verstärkt von: " << ce_found.classification << " -> " << ce.classification << std::endl; 
+		}
+		else if (ce.classification == -1)
+		{
+		}
+		else {
+			//throw runtime error
+			std::cout << "ERROR" << std::endl;
 		}
 		
 	}
@@ -101,6 +108,7 @@ bool store(Counterexample  ce)
 		std::cout << "element nicht vorhanden" << std::endl;
 		counterexample_map.insert(std::make_pair(ce, counterexample_map.size()));
 		position_map.insert(std::make_pair(position_map.size(), ce));
+		counterexample_vector.push_back(ce);
 		std::cout << "Stored: " << ce << " at Position: " << counterexample_map.size()-1 << std::endl;
 	}
 }
@@ -258,12 +266,12 @@ int main()
 	myfile.open("example.txt");
 	myfile << "Writing this to a file. \n";
 	myfile.close();
-	/*std::vector<int> c;
+	std::vector<int> c;
+	c.push_back(3);
+	c.push_back(3);
 	Counterexample *a = new Counterexample(c,0);
-	Counterexample *b = new Counterexample(c,1);
-	a==b;
-	a<b;
-	a -> classification = 3;
-	std::cout << " a: " << *a << std::endl;
-	//counterexample_map.insert(std::make_pair(&a,1));*/
+	std::cout << "Inserting: " << *a << " as Counterexample" << std::endl;
+	store(*a);
+	write();
+	//counterexample_map.insert(std::make_pair(&a,1));
 }
