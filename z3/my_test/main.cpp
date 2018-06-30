@@ -50,6 +50,7 @@ struct Counterexample
 	std::map<Counterexample,int> counterexample_map;
 	std::map<int,Counterexample> position_map;
 	std::vector<Counterexample> counterexample_vector;
+	std::vector<std::vector<int>> horn_clauses;
 void prep(int  i)
 {
 	std::ofstream myfile;
@@ -72,14 +73,34 @@ bool write()
 	}
 	myfile << counterexample_vector[counterexample_vector.size()-1];
 	myfile.close();	
+	myfile.open("dillig12.bpl.horn");
+	for (int i = 0; i < horn_clauses.size(); i ++)
+	{
+		myfile << horn_clauses[i][0];
+		for (int j = 1; j < horn_clauses[i].size(); j++)
+		{
+			myfile << ", " << horn_clauses[i][j];
+		}
+		myfile << "\n";
+	}
 }
-bool store(Counterexample  ce)
+
+int store_horn(std::vector<int> horn)
 {
+	for (int i = 0; i < horn.size(); i++)
+	{
+		std::cout << i << ": " << horn[i] << std::endl;
+	}
+	horn_clauses.push_back(horn);
+}
+int store(Counterexample  ce)
+{
+	int position;
 	std::map<Counterexample, int>::iterator it = counterexample_map.find(ce);
 	if (it != counterexample_map.end())
 	{
 		//check ob jetztiges > gefundenes, ersetze dann (true, oder false ersetzen ?)
-		int position = it -> second;
+		position = it -> second;
 		std::cout << "Element vorhanden: " << it->first << " at position: " << position << std::endl;
 		std::map<int,Counterexample>::iterator it_pos = position_map.find(position);
 		std::cout << (position_map.find(position)-> second) << std::endl;
@@ -99,21 +120,23 @@ bool store(Counterexample  ce)
 		}
 		else {
 			//throw runtime error
-			std::cout << "ERROR" << std::endl;
-		}
-		
+			std::cout << "ERROR" << "cefound: " << ce_found << " ce: " << ce << std::endl;
+		}		
 	}
 	else 
 	{
 		std::cout << "element nicht vorhanden" << std::endl;
-		counterexample_map.insert(std::make_pair(ce, counterexample_map.size()));
+		position = counterexample_map.size();
+		counterexample_map.insert(std::make_pair(ce, position));
 		position_map.insert(std::make_pair(position_map.size(), ce));
 		counterexample_vector.push_back(ce);
 		std::cout << "Stored: " << ce << " at Position: " << counterexample_map.size()-1 << std::endl;
 	}
+	std::cout << "Position RETURN: " << position << std::endl;
+	return position;
 }
 
-bool create_and_store_initial_counterexample(const std::vector<int>  ce)
+int create_and_store_initial_counterexample(const std::vector<int>  ce)
 {	
 	return store(Counterexample(ce,0));
 }
@@ -122,7 +145,7 @@ int create_and_store_safe_counterexample(const std::vector<int>  ce)
 {
 	return store(Counterexample(ce,1));
 }
-bool create_and_store_unclassified_counterexample(const std::vector<int> ce)
+int create_and_store_unclassified_counterexample(const std::vector<int> ce)
 {
 	return store(Counterexample(ce,-1));
 }
@@ -139,24 +162,24 @@ bool create_and_store_existential_counterexample(const std::vector<std::vector<i
 		}
 		positions.push_back(position);
 	}
-	// create horn_clausel(positions);
+	store_horn(positions);
 	return success;	
 }
 bool create_and_store_universal_counterexample(const std::vector<std::vector<int>>  ce)
 {
-	std::vector<int> a;
 	bool success = true;
-	int position = create_and_store_unclassified_counterexample(ce[ce.size()-1]);
-	for (int i = ce.size()-2; i >= 0; i--)
+	int a = create_and_store_unclassified_counterexample(ce[0]);
+	std::cout << ce.size() << std::endl;
+	for (int i = 1; i < ce.size(); i++)
 	{
 		std::vector<int> positions;
-		positions.push_back(position);
-		position = create_and_store_unclassified_counterexample(ce[i]);
+		int position = create_and_store_unclassified_counterexample(ce[i]);
 		if (position == -1){
 			success = false;
 		}
 		positions.push_back(position);
-		// create horn_clausel
+		positions.push_back(a);
+		store_horn(positions);
 	}
 	return success;		
 }
@@ -230,7 +253,6 @@ int main()
 		for (int i = 0; i < test2.size(); i++){
 			std::cout << "Safe: " << i << ": " << test2[i] << std::endl;
 		}
-		create_and_store_safe_counterexample(test2); 
 		create_and_store_safe_counterexample(test2); 
 	}
 	std::vector<std::vector<int>> new_test1;
