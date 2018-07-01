@@ -1,12 +1,27 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <string>
 #include <set>
 #include <map>
 #include <iterator>
 #include <typeinfo>
 #include "z3++.h"
 #include "teacher.h"
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
+namespace ns
+{
+	struct json_node
+	{
+		std::string attribute;
+		int cut;
+		bool classification;
+		std::vector<int> children;
+	};
+}
+//fange func ab
 
 struct Counterexample
 {
@@ -33,15 +48,15 @@ struct Counterexample
 		stream << c.datapoints[c.datapoints.size()-1];
 		if (c.classification == -1)
 		{
-			stream << ", ?";
+			stream << ",?";
 		}
 		else if (c.classification == 0)
 		{
-			stream << ", 0";
+			stream << ",false";
 		}
 		else
 		{
-			stream << ", 1";
+			stream << ",true";
 		}
 
 		return stream;
@@ -51,14 +66,69 @@ struct Counterexample
 	std::map<int,Counterexample> position_map;
 	std::vector<Counterexample> counterexample_vector;
 	std::vector<std::vector<int>> horn_clauses;
+	std::map<std::string, z3::expr> variables;
+	z3::context ctx;
+	
+z3::expr read_json(json j)
+{
+
+	if(j["attribute"] == "$func")
+	{
+		return read_json(j["children"][0]);
+	}
+	else if (j["children"].is_null())
+	{
+		int i = j["classification"];
+		if (i == 0)
+		{
+			return ctx.bool_val(true);
+		}
+		else
+		{
+			return ctx.bool_val(false);
+		}
+	}
+	else
+	{
+
+		std::string varname = j["attribute"].get<std::string>();
+		std::map<std::string, z3::expr>::iterator it;
+		it = variables.find(varname);
+		if (it == variables.end())
+		{
+			std::cout << varname << " nicht gefunden" << std::endl;
+		}
+		else
+		{
+			z3::expr x = (it->second);
+			std::cout << "expr: " << x << std::endl;
+			std::cout << "test: " << varname << std::endl;	
+			z3::expr left = read_json(j["children"][0]);
+			z3::expr right = read_json(j["children"][1]);
+			z3::expr c = x <= ctx.int_val(j["cut"].get<int>());
+			std::cout << "left: " << left << " right: " << right << std::endl;
+			std::cout << c << " " << c.is_bool() <<  " " << ctx.int_val(j["cut"].get<int>()).is_int() << std::endl;
+			z3::expr b = ite(c,left,right);
+			std::cout << b << std::endl;
+			return b;
+		}
+		
+	}
+
+}
 void prep(int  i)
 {
 	std::ofstream myfile;
 	myfile.open("dillig12.bpl.attributes");
 	myfile << "cat,$func,1\n";
 	for (int j = 0; j < i; j++){
-		myfile << "int,$a" << j << "\n";
-
+		std::string s = "$a" + std::to_string(j);
+		char const *pchar = s.c_str();
+		myfile << "int," << pchar << "\n";
+		z3::expr x = ctx.int_const(pchar);
+		variables.insert(std::make_pair(s,x));
+		std::cout << "eingefügt in variables: " << s << " " << x << std::endl;
+		std::cout << variables.find(s)->second << std::endl;
 	}
 	myfile.close();
 }
@@ -69,9 +139,9 @@ bool write()
 	myfile.open("dillig12.bpl.data");
 	for (int i = 0; i < counterexample_vector.size()-1;i++)
 	{
-		myfile << counterexample_vector[i] << "\n";
+		myfile << 0 << "," << counterexample_vector[i] << "\n";
 	}
-	myfile << counterexample_vector[counterexample_vector.size()-1];
+	myfile << 0 << "," << counterexample_vector[counterexample_vector.size()-1];
 	myfile.close();	
 	myfile.open("dillig12.bpl.horn");
 	for (int i = 0; i < horn_clauses.size(); i ++)
@@ -284,16 +354,15 @@ int main()
 		create_and_store_universal_counterexample(new_test2);
 		
 	}
-	std::ofstream myfile;
-	myfile.open("example.txt");
-	myfile << "Writing this to a file. \n";
-	myfile.close();
-	std::vector<int> c;
-	c.push_back(3);
-	c.push_back(3);
-	Counterexample *a = new Counterexample(c,0);
-	std::cout << "Inserting: " << *a << " as Counterexample" << std::endl;
-	store(*a);
-	write();
+	// TODO create loop
+	/* Starte teacher mit hypothesis true und lass ihn einmal laufen
+	 * Starte Prozess vom learner und warte bis er fertig ist
+	 * lese JSON und starte lehrer mit dem resultat
+	 * wiederhole solange bis kein ce mehr gefunden wird oder n schritte(sicherung für bugs)
+	 * 
+	 * */
+	std::ifstream ifs("dillig12.bpl.json");
+	json j = json::parse(ifs);
+	read_json(j);
 	//counterexample_map.insert(std::make_pair(&a,1));
 }
