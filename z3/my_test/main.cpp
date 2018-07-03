@@ -119,7 +119,7 @@ z3::expr read_json(json j)
 void prep(int  i)
 {
 	std::ofstream myfile;
-	myfile.open("dillig12.bpl.attributes");
+	myfile.open("data/dillig12.bpl.attributes");
 	myfile << "cat,$func,1\n";
 	for (int j = 0; j < i; j++){
 		std::string s = "$a" + std::to_string(j);
@@ -136,14 +136,14 @@ void prep(int  i)
 bool write()
 {
 	std::ofstream myfile;
-	myfile.open("dillig12.bpl.data");
+	myfile.open("data/dillig12.bpl.data");
 	for (int i = 0; i < counterexample_vector.size()-1;i++)
 	{
 		myfile << 0 << "," << counterexample_vector[i] << "\n";
 	}
 	myfile << 0 << "," << counterexample_vector[counterexample_vector.size()-1];
 	myfile.close();	
-	myfile.open("dillig12.bpl.horn");
+	myfile.open("data/dillig12.bpl.horn");
 	for (int i = 0; i < horn_clauses.size(); i ++)
 	{
 		myfile << horn_clauses[i][0];
@@ -165,7 +165,7 @@ int store_horn(std::vector<int> horn)
 }
 int store(Counterexample  ce)
 {
-	int position;
+	int position = -1;
 	std::map<Counterexample, int>::iterator it = counterexample_map.find(ce);
 	if (it != counterexample_map.end())
 	{
@@ -361,8 +361,10 @@ int main()
 	 * wiederhole solange bis kein ce mehr gefunden wird oder n schritte(sicherung für bugs)
 	 * 
 	 * */
-	std::ifstream ifs("dillig12.bpl.json");
+	std::ifstream ifs("data/dillig12.bpl.json");
 	json j = json::parse(ifs);
 	read_json(j);
+	system("learner/main data/dillig12.bpl");
+	std::cout << std::endl << "we waited :) " << std::endl;
 	//counterexample_map.insert(std::make_pair(&a,1));
 }
