@@ -76,6 +76,11 @@ std::vector<int> check_safe_condition(const z3::expr & hypothesis, const z3::exp
 
 std::vector<std::vector<int>> build_counterexample(const z3::expr & counterexample,const std::vector<int> right, const z3::expr & edges, z3::context & context, const z3::expr_vector variables, const z3::expr_vector variables_dash, const z3::expr_vector all_variables, const int n)
 {
+	std::cout << "build ce " << std::endl;
+	for (int i = 0; i < variables.size(); i++)
+	{
+		std::cout << "variables[" << i << "] :" << variables[i] << " variables_dash[" << i << "] :" << variables_dash[i] << std::endl;
+	}
 	// pushe alle vektoren in result, bis n erreicht, dann den mitgegeben zusätzlich
 	std::vector<std::vector<int>> result;
 	auto solver = z3::solver(context);
@@ -91,7 +96,7 @@ std::vector<std::vector<int>> build_counterexample(const z3::expr & counterexamp
 			}
 			z3::expr test = context.bool_val(true);
 			for(int j = 0; j < variables_dash.size(); j++){
-				test =  (test) && (variables_dash[i] == m.eval(variables_dash[i]));
+				test =  (test) && (variables_dash[j] == m.eval(variables_dash[j]));
 			}
 			std::vector<int> tmp;
 			for(int k = 0; k < variables_dash.size(); k++){
@@ -99,7 +104,6 @@ std::vector<std::vector<int>> build_counterexample(const z3::expr & counterexamp
 				Z3_get_numeral_int(context, m.eval(variables_dash[k]), &j);
 				tmp.push_back(j);
 			}
-
 			result.push_back(tmp);
 			solver.add(!test);
 			// add counterexample mit successor
