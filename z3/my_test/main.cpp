@@ -107,10 +107,7 @@ z3::expr read_json(json j)
 			z3::expr left = read_json(j["children"][0]);
 			z3::expr right = read_json(j["children"][1]);
 			z3::expr c = x <= ctx.int_val(j["cut"].get<int>());
-			//std::cout << "left: " << left << " right: " << right << std::endl;
-			//std::cout << c << " " << c.is_bool() <<  " " << ctx.int_val(j["cut"].get<int>()).is_int() << std::endl;
 			z3::expr b = ite(c,left,right);
-			//std::cout << b << std::endl;
 			return b;
 		}
 		
