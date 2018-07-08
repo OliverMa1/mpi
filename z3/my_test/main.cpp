@@ -28,7 +28,7 @@ struct Counterexample
 	std::vector<int> datapoints;
 	// -1 = ?; 0 = false; 1 = true
 	int classification;
-	Counterexample(std::vector<int> dp, int c): datapoints(dp), classification(c){}
+	Counterexample(const std::vector<int>  & dp, int c): datapoints(dp), classification(c){}
 	friend bool operator==(const Counterexample& c1, const Counterexample& c2)
 	{
 		bool res;
@@ -41,7 +41,7 @@ struct Counterexample
 	}
 	friend std::ostream& operator<<(std::ostream & stream, const Counterexample & c)
 	{
-		for (int i = 0; i < c.datapoints.size()-1; i++)
+		for (int i = 0; (unsigned)i < c.datapoints.size()-1; i++)
 		{
 			stream << c.datapoints[i] << ", ";
 		}
@@ -63,6 +63,7 @@ struct Counterexample
 	} 
 };
 	std::map<Counterexample,int> counterexample_map;
+	//wrapper objekt für pointer reference wrapper
 	std::map<int,Counterexample> position_map;
 	std::vector<Counterexample> counterexample_vector;
 	std::vector<std::vector<int>> horn_clauses;
@@ -100,6 +101,7 @@ z3::expr read_json(json j)
 		if (it == variables.end())
 		{
 			std::cout << varname << " nicht gefunden" << std::endl;
+			return ctx.bool_val(false);
 		}
 		else
 		{
@@ -112,7 +114,7 @@ z3::expr read_json(json j)
 		}
 		
 	}
-
+	
 }
 void prep(int  i)
 {
@@ -132,28 +134,28 @@ void prep(int  i)
 		std::cout << "eingefügt in variables: " << s << " " << x << std::endl;
 		std::cout << variables.find(s)->second << std::endl;
 	}
-	for (int j = 0; j < variables_dash_vector.size(); j++)
+	for (int j = 0; (unsigned)j < variables_dash_vector.size(); j++)
 	{
 		all_variables_vector.push_back(variables_dash_vector[j]);
 	}
 	myfile.close();
 }
 
-bool write()
+void write()
 {
 	std::ofstream myfile;
 	myfile.open("data/dillig12.bpl.data");
-	for (int i = 0; i < counterexample_vector.size()-1;i++)
+	for (int i = 0; (unsigned)i < counterexample_vector.size()-1;i++)
 	{
 		myfile << 0 << "," << counterexample_vector[i] << "\n";
 	}
 	myfile << 0 << "," << counterexample_vector[counterexample_vector.size()-1];
 	myfile.close();	
 	myfile.open("data/dillig12.bpl.horn");
-	for (int i = 0; i < horn_clauses.size(); i ++)
+	for (int i = 0; (unsigned)i < horn_clauses.size(); i ++)
 	{
 		myfile << horn_clauses[i][0];
-		for (int j = 1; j < horn_clauses[i].size(); j++)
+		for (int j = 1; (unsigned)j < horn_clauses[i].size(); j++)
 		{
 			myfile << ", " << horn_clauses[i][j];
 		}
@@ -161,9 +163,10 @@ bool write()
 	}
 }
 
-int store_horn(std::vector<int> horn)
+void store_horn(std::vector<int> horn)
 {
-		for (int i = 0; i < horn.size(); i++)
+	std::cout << "entered HORN" << std::endl;
+		for (int i = 0; (unsigned)i < horn.size(); i++)
 		{
 			std::cout << i << ": " << horn[i] << std::endl;
 		}
@@ -212,20 +215,20 @@ int store(Counterexample  ce)
 	return position;
 }
 
-int create_and_store_initial_counterexample(const std::vector<int>  ce)
+int create_and_store_initial_counterexample(const std::vector<int> & ce)
 {	
 	return store(Counterexample(ce,0));
 }
 
-int create_and_store_safe_counterexample(const std::vector<int>  ce)
+int create_and_store_safe_counterexample(const std::vector<int> & ce)
 {
 	return store(Counterexample(ce,1));
 }
-int create_and_store_unclassified_counterexample(const std::vector<int> ce)
+int create_and_store_unclassified_counterexample(const std::vector<int> & ce)
 {
 	return store(Counterexample(ce,-1));
 }
-bool create_and_store_existential_counterexample(const std::vector<std::vector<int>>  ce)
+bool create_and_store_existential_counterexample(const std::vector<std::vector<int>> & ce)
 {
 	std::vector<int> a;
 	std::vector<int> positions;
@@ -238,6 +241,7 @@ bool create_and_store_existential_counterexample(const std::vector<std::vector<i
 		}
 		positions.push_back(position);
 	}
+	std::cout << "Posi size: " << positions.size() << std::endl;
 	if (positions.size() > 1){
 		store_horn(positions);
 	}
@@ -246,12 +250,12 @@ bool create_and_store_existential_counterexample(const std::vector<std::vector<i
 	}
 	return success;	
 }
-bool create_and_store_universal_counterexample(const std::vector<std::vector<int>>  ce)
+bool create_and_store_universal_counterexample(const std::vector<std::vector<int>>  & ce)
 {
 	bool success = true;
 	int a = create_and_store_unclassified_counterexample(ce[0]);
 	std::cout << ce.size() << std::endl;
-	for (int i = 1; i < ce.size(); i++)
+	for (int i = 1; (unsigned)i < ce.size(); i++)
 	{
 		std::vector<int> positions;
 		int position = create_and_store_unclassified_counterexample(ce[i]);
@@ -264,7 +268,7 @@ bool create_and_store_universal_counterexample(const std::vector<std::vector<int
 	}
 	return success;		
 }
-bool initial_check(const z3::expr & hypothesis, const z3::expr & initial_vertices, z3::context & context, z3::expr_vector variables)
+bool initial_check(const z3::expr & hypothesis, const z3::expr & initial_vertices, z3::context & context, const z3::expr_vector & variables)
 {
 	std::vector<int> test1;
 	bool flag = false;
@@ -274,15 +278,15 @@ bool initial_check(const z3::expr & hypothesis, const z3::expr & initial_vertice
 		}
 		else {
 			flag = true;
-			for (int i = 0; i < test1.size(); i++){
+			for (int i = 0; (unsigned)i < test1.size(); i++){
 				std::cout << "Initial: " << i << ": " << test1[i] << std::endl;
 			} 
-			bool ce = create_and_store_initial_counterexample(test1);
+			create_and_store_initial_counterexample(test1);
 		}
 		return flag;
 }
 
-bool safe_check(const z3::expr & hypothesis, const z3::expr & safe_vertices, z3::context & context, z3::expr_vector variables)
+bool safe_check(const z3::expr & hypothesis, const z3::expr & safe_vertices, z3::context & context,const z3::expr_vector & variables)
 
 {
 	bool flag = false;
@@ -294,7 +298,7 @@ bool safe_check(const z3::expr & hypothesis, const z3::expr & safe_vertices, z3:
 		}
 		else {
 			flag = true;
-			for (int i = 0; i < test2.size(); i++){
+			for (int i = 0; (unsigned)i < test2.size(); i++){
 				std::cout << "Safe: " << i << ": " << test2[i] << std::endl;
 			}
 			create_and_store_safe_counterexample(test2); 
@@ -304,8 +308,8 @@ bool safe_check(const z3::expr & hypothesis, const z3::expr & safe_vertices, z3:
 
 bool ex_check(const z3::expr & hypothesis, z3::expr & hypothesis_edge_nodes, 
 const z3::expr & vertices, const z3::expr & vertices_dash, const z3::expr & vertices_player0, 
-const z3::expr & edges, z3::context & context, z3::expr_vector all_variables,
- z3::expr_vector variables, z3::expr_vector variables_dash, const int & n)
+const z3::expr & edges, z3::context & context,const z3::expr_vector & all_variables,
+ const z3::expr_vector & variables, const z3::expr_vector & variables_dash, const int & n)
  {
 		bool flag = false;
 	 	std::vector<std::vector<int>> new_test1;
@@ -316,8 +320,8 @@ const z3::expr & edges, z3::context & context, z3::expr_vector all_variables,
 		}
 		else {
 			flag = true;
-			for (int i = 0; i < new_test1.size(); i++){
-				for (int j = 0; j < new_test1[i].size(); j++){
+			for (int i = 0; (unsigned)i < new_test1.size(); i++){
+				for (int j = 0; (unsigned)j < new_test1[i].size(); j++){
 					std::cout << "Ex: " << j << ": " << new_test1[i][j] << std::endl;	
 				}
 			} 
@@ -327,8 +331,8 @@ const z3::expr & edges, z3::context & context, z3::expr_vector all_variables,
 }
 bool uni_check(const z3::expr & hypothesis, z3::expr & hypothesis_edge_nodes, 
 const z3::expr & vertices, const z3::expr & vertices_dash, const z3::expr & vertices_player1, 
-const z3::expr & edges, z3::context & context, z3::expr_vector all_variables,
- z3::expr_vector variables, z3::expr_vector variables_dash, const int n)
+const z3::expr & edges, z3::context & context, const z3::expr_vector & all_variables,
+ const z3::expr_vector & variables, const z3::expr_vector & variables_dash, const int n)
 {
 	bool flag = false;
 	 std::vector<std::vector<int>> new_test2;
@@ -338,8 +342,8 @@ const z3::expr & edges, z3::context & context, z3::expr_vector all_variables,
 		}
 		else {
 			flag = true;
-			for (int i = 0; i < new_test2.size(); i++){
-				for (int j = 0; j < new_test2[i].size(); j++){
+			for (int i = 0; (unsigned)i < new_test2.size(); i++){
+				for (int j = 0; (unsigned)j < new_test2[i].size(); j++){
 					std::cout << "Uni: " << j << ": " << new_test2[i][j] << std::endl;	
 				}
 			}
@@ -348,12 +352,36 @@ const z3::expr & edges, z3::context & context, z3::expr_vector all_variables,
 		}
 		return flag;
 }
+
+void example_1(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr & vertices_player0, z3::expr & vertices_player1, z3::expr & edges,int & n)
+{
+	prep(2);
+	z3::expr x = variables_vector[0];
+	auto y = variables_vector[1];
+	z3::expr x_dash = variables_dash_vector[0];
+	auto y_dash = variables_dash_vector[1];
+	initial_vertices = (x == 1) && (y == 0);
+	safe_vertices = (x >= 0);
+	vertices_player0 = (y == 0);
+	vertices_player1 = (y == 1);
+	edges = (x == x_dash +1 && y_dash == 1-y) || (x == x_dash -1 && y_dash == 1-y);
+	n = 10;
+		auto solver = z3::solver(ctx);
+		solver.add(edges);
+		if (solver.check()== z3::sat){
+			std::cout << solver.get_model() << std::endl;
+		}
+		else
+		{
+			std::cout << "test fehlgeschlagn" << std::endl;
+		}
+}
+
 int main()
 {
 
-	prep(2);
 
-	auto four = ctx.int_val(4);
+	/*auto four = ctx.int_val(4);
 	z3::expr x = variables_vector[0];
 	auto y = variables_vector[1];
 	z3::expr x_dash = variables_dash_vector[0];
@@ -382,7 +410,24 @@ int main()
 	|| (node_0 && node_1_dash) || (node_3 && node_4_dash) || (node_4 && node_0_dash) || node_1 && node_3_dash || node_2 && node_3_dash || node_2 && node_0_dash || node_2 && node_1_dash || node_1 && node_5_dash || node_0 && node_5_dash;
 	const int n = 10;
 	z3::expr hypothesis =  node_1 || node_4 || node_2;
-	hypothesis = ctx.bool_val(true);
+	* */
+	
+	/* 
+	 * 1. Initial Vertices
+	 * 2. Safe Vertices
+	 * 3. Player 0 und Player 1
+	 * 4. Edges
+	 * */
+	z3::expr initial_vertices = ctx.int_val(4);
+	z3::expr safe_vertices = ctx.int_val(4);
+	z3::expr vertices_player0 = ctx.int_val(4);
+	z3::expr vertices_player1 = ctx.int_val(4);
+	z3::expr edges = ctx.int_val(4);
+	int n;
+	example_1(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
+	auto vertices = vertices_player0 || vertices_player1;
+	auto vertices_dash = vertices.substitute(variables_vector,variables_dash_vector);
+	auto hypothesis = ctx.bool_val(true);
 	z3::expr hypothesis_edges_test = hypothesis.substitute(variables_vector,variables_dash_vector);
 	bool flag = true;
 	int safety_counter = 0;
@@ -408,7 +453,7 @@ int main()
 		std::cout << "\n HYPOTHESIS: " << hypothesis << std::endl;
 		hypothesis_edges_test  = hypothesis.substitute(variables_vector,variables_dash_vector);
 		safety_counter++;
-		if (safety_counter >= 20)
+		if (safety_counter >= 10)
 		{
 			flag = false;
 			std::cout << "Safety counter reached" << std::endl;
