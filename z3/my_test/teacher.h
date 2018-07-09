@@ -66,11 +66,13 @@ std::vector<int> check_safe_condition(const z3::expr & hypothesis, const z3::exp
 		for(int i = 0; (unsigned)i < variables.size(); i++){
 			int j;
 			Z3_get_numeral_int(context, m.eval(variables[i]), &j);
+			std::cout << "test: " << j << std::endl;
 			result.push_back(j);
 		}
 
 		std::cout << "counterexample for safe condition!:\n" << solver.get_model() << "\n";
 	}
+	std::cout << "test2: " << result.size() << " " << variables.size() << std::endl;
 	return result;
 }
 
