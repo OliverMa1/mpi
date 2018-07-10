@@ -91,6 +91,7 @@ std::vector<std::vector<int>> build_counterexample(const z3::expr & counterexamp
 	for(int i = 0; i < n; i++){
 		if (solver.check() == z3::sat){
 			auto m = solver.get_model();
+			//std::cout << "MODEL : " << m << std::endl;
 			z3::expr_vector sol(context);
 			for (unsigned l = 0; (unsigned)l < m.size(); l++){
 				z3::func_decl v = m[l];	
