@@ -468,28 +468,19 @@ void multi_wassertank(z3::expr & initial_vertices, z3::expr & safe_vertices, z3:
 		initial_vertices = initial_vertices && variables_vector[i] == 0;
 	}
 	safe_vertices = ctx.bool_val(true);
-	for (int i = 0; (unsigned)i < variables_vector.size() -1; i++)
+	for (int i = 0; (unsigned)i < variables_vector.size()-1; i++)
 	{
-		safe_vertices = safe_vertices && variables_vector[i] >= 0 && variables_vector[i] <= 5;
+		safe_vertices = safe_vertices && variables_vector[i] >= 0 && variables_vector[i] <= 2;
 	}
 	safe_vertices = safe_vertices && (variables_vector.back() == 0 || variables_vector.back() == 1);
 	vertices_player0 = variables_vector.back() == 0;
 	vertices_player1 = variables_vector.back() == 1;
-	edges = variables_vector.back() == 1-variables_dash_vector.back();
+	edges = (variables_vector.back() == 0 && variables_dash_vector.back() == 1) || (variables_vector.back() == 1 && variables_dash_vector.back() == 0);//variables_vector.back() == 1-variables_dash_vector.back();
 	for (int i = 0; (unsigned) i < variables_vector.size()-1; i++)
 	{
 		edges = edges && ((variables_vector[i] == variables_dash_vector[i] +1) || (variables_vector[i] == variables_dash_vector[i] ) || (variables_vector[i] == variables_dash_vector[i] -1));
 	}
-	n = 10;
-		auto solver = z3::solver(ctx);
-		solver.add(edges);
-		if (solver.check()== z3::sat){
-			std::cout << solver.get_model() << std::endl;
-		}
-		else
-		{
-			std::cout << "test fehlgeschlagn" << std::endl;
-		}
+	n = 100;
 }
 // parameter dreieck
 // mehrdimensionale fläche
@@ -541,12 +532,12 @@ int main()
 	z3::expr vertices_player1 = ctx.int_val(4);
 	z3::expr edges = ctx.int_val(4);
 	int n;
-	band_roboter(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
+	//band_roboter(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
 	//quadrat(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 5);
 	//wassertank(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 5);
 	//wassertank_2(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 10,5);
 	//zwei_geraden(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 2,2);
-	//multi_wassertank(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 4);
+	multi_wassertank(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 6);
 	auto vertices = vertices_player0 || vertices_player1;
 	auto vertices_dash = vertices.substitute(variables_vector,variables_dash_vector);
 	auto hypothesis = ctx.bool_val(true);
@@ -575,7 +566,7 @@ int main()
 		std::cout << "\n HYPOTHESIS: " << hypothesis << std::endl;
 		hypothesis_edges_test  = hypothesis.substitute(variables_vector,variables_dash_vector);
 		safety_counter++;
-		if (safety_counter >= 77)
+		if (safety_counter >= 25)
 		{
 			flag = false;
 			std::cout << "Safety counter reached" << std::endl;
