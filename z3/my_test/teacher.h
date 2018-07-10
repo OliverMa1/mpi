@@ -36,7 +36,7 @@ std::vector<int> check_initial_condition(const z3::expr & hypothesis, const z3::
 			//std::cout<< "m[i]: " << m[i] << "v.arity()" << v.arity() << v.name() << " = " << m.get_const_interp(v) << std::endl;
 		}
 		for(int i = 0; (unsigned)i < variables.size(); i++){
-			int j;
+			int j = 0;
 			Z3_get_numeral_int(context, m.eval(variables[i]), &j);
 			result.push_back(j);
 		}
@@ -64,7 +64,7 @@ std::vector<int> check_safe_condition(const z3::expr & hypothesis, const z3::exp
 			
 		}
 		for(int i = 0; (unsigned)i < variables.size(); i++){
-			int j;
+			int j = 0;
 			Z3_get_numeral_int(context, m.eval(variables[i]), &j);
 			std::cout << "test: " << j << std::endl;
 			result.push_back(j);
@@ -102,7 +102,7 @@ std::vector<std::vector<int>> build_counterexample(const z3::expr & counterexamp
 			}
 			std::vector<int> tmp;
 			for(int k = 0; (unsigned)k < variables_dash.size(); k++){
-				int j;
+				int j = 0;
 				Z3_get_numeral_int(context, m.eval(variables_dash[k]), &j);
 				tmp.push_back(j);
 			}

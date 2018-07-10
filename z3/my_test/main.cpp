@@ -354,7 +354,7 @@ const z3::expr & edges, z3::context & context, const z3::expr_vector & all_varia
 		return flag;
 }
 
-void example_1(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr & vertices_player0, z3::expr & vertices_player1, z3::expr & edges,int & n)
+void band_roboter(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr & vertices_player0, z3::expr & vertices_player1, z3::expr & edges,int & n)
 {
 	prep(2);
 	z3::expr x = variables_vector[0];
@@ -368,17 +368,8 @@ void example_1(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr &
 	edges = (x == x_dash +1 && y_dash == 1-y) || (x == x_dash -1 && y_dash == 1-y);
 	//edges = (x == x_dash +1 || x == x_dash -1) && (y_dash == 1-y);
 	n = 10;
-		auto solver = z3::solver(ctx);
-		solver.add(edges);
-		if (solver.check()== z3::sat){
-			std::cout << solver.get_model() << std::endl;
-		}
-		else
-		{
-			std::cout << "test fehlgeschlagn" << std::endl;
-		}
 }
-void example_2(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr & vertices_player0, z3::expr & vertices_player1, z3::expr & edges,int & n, int  k)
+void quadrat(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr & vertices_player0, z3::expr & vertices_player1, z3::expr & edges,int & n, int  k)
 {
 	prep(3);
 	z3::expr x = variables_vector[0];
@@ -393,6 +384,20 @@ void example_2(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr &
 	vertices_player1 = (z == 1);
 	edges = (x == x_dash +1 || x == x_dash || x == x_dash -1) && (y == y_dash +1 || y == y_dash -1 || y == y_dash) && (z == 1-z_dash);
 	n = 10;
+}
+void wassertank(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr & vertices_player0, z3::expr & vertices_player1, z3::expr & edges,int & n, int  k)
+{
+	prep(2);
+	z3::expr x = variables_vector[0];
+	auto y = variables_vector[1];
+	z3::expr x_dash = variables_dash_vector[0];
+	auto y_dash = variables_dash_vector[1];
+	initial_vertices = (x == 0) && (y == 0);
+	safe_vertices = (x <= k) && (x >= 0) && (y == 0 || y == 1);
+	vertices_player0 = (y == 0);
+	vertices_player1 = (y == 1);
+	edges = (y == 0 && y_dash == 1) || (y == 1  && y_dash == 0 && x == x_dash -2);
+	n = 10;
 		auto solver = z3::solver(ctx);
 		solver.add(edges);
 		if (solver.check()== z3::sat){
@@ -403,6 +408,7 @@ void example_2(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr &
 			std::cout << "test fehlgeschlagn" << std::endl;
 		}
 }
+
 // parameter dreieck
 // mehrdimensionale fläche
 // wasser tank
@@ -453,8 +459,9 @@ int main()
 	z3::expr vertices_player1 = ctx.int_val(4);
 	z3::expr edges = ctx.int_val(4);
 	int n;
-	//example_1(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
-	example_2(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 5);
+	//band_roboter(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
+	//quadrat(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 5);
+	wassertank(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 5);
 	auto vertices = vertices_player0 || vertices_player1;
 	auto vertices_dash = vertices.substitute(variables_vector,variables_dash_vector);
 	auto hypothesis = ctx.bool_val(true);
@@ -483,7 +490,7 @@ int main()
 		std::cout << "\n HYPOTHESIS: " << hypothesis << std::endl;
 		hypothesis_edges_test  = hypothesis.substitute(variables_vector,variables_dash_vector);
 		safety_counter++;
-		if (safety_counter >= 88)
+		if (safety_counter >= 188)
 		{
 			flag = false;
 			std::cout << "Safety counter reached" << std::endl;
