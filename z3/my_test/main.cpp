@@ -200,7 +200,8 @@ int store(Counterexample  ce)
 		}
 		else {
 			//throw runtime error
-			std::cout << "ERROR" << "cefound: " << ce_found << " ce: " << ce << std::endl;
+			throw std::runtime_error("Inserted counterexample twice!");
+			//std::cout << "ERROR" << "cefound: " << ce_found << " ce: " << ce << std::endl;
 		}		
 	}
 	else 
@@ -361,7 +362,7 @@ void band_roboter(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::exp
 	auto y = variables_vector[1];
 	z3::expr x_dash = variables_dash_vector[0];
 	auto y_dash = variables_dash_vector[1];
-	initial_vertices = (x == 1) && (y == 0);
+	initial_vertices = (x == 0) && (y == 0);
 	safe_vertices = (x >= 0);
 	vertices_player0 = (y == 0);
 	vertices_player1 = (y == 1);
@@ -417,10 +418,10 @@ void wassertank(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr 
 	z3::expr x_dash = variables_dash_vector[0];
 	auto y_dash = variables_dash_vector[1];
 	initial_vertices = (x == 0) && (y == 0);
-	safe_vertices = (x <= k) && (x >= 0) && (y == 0 || y == 1);
+	safe_vertices = (x <= k) && (x >= 0);
 	vertices_player0 = (y == 0);
 	vertices_player1 = (y == 1);
-	edges = (y == 0 && y_dash == 1 && ((x == x_dash) || (x == x_dash-1) || (x == x_dash-2) || (x == x_dash-3) )) || (y == 1  && y_dash == 0 && x == x_dash +1);
+	edges = (x == x_dash +1 && y_dash == 1-y) || (x == x_dash -1 && y_dash == 1-y) || (x == x_dash  && y_dash == 1-y); 
 	n = 10;
 		auto solver = z3::solver(ctx);
 		solver.add(edges);
@@ -442,7 +443,7 @@ void zwei_geraden(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::exp
 	auto y_dash = variables_dash_vector[1];
 	auto z_dash = variables_dash_vector[2];
 	initial_vertices = (x == 0) && (y == 0) && (z == 0);
-	safe_vertices = (x - k1 <= y) && (x + k2 >= y) && (z == 0 || z == 1);
+	safe_vertices = (x - k1 <= y) && (x + k2 >= y);// && (z == 0 || z == 1);
 	vertices_player0 = (z == 0);
 	vertices_player1 = (z == 1);
 	edges = (x == x_dash +1 || x == x_dash || x == x_dash -1) && (y == y_dash +1 || y == y_dash -1 || y == y_dash) && (z == 1-z_dash);
@@ -472,7 +473,7 @@ void multi_wassertank(z3::expr & initial_vertices, z3::expr & safe_vertices, z3:
 	{
 		safe_vertices = safe_vertices && variables_vector[i] >= 0 && variables_vector[i] <= 2;
 	}
-	safe_vertices = safe_vertices && (variables_vector.back() == 0 || variables_vector.back() == 1);
+	//safe_vertices = safe_vertices && (variables_vector.back() == 0 || variables_vector.back() == 1);
 	vertices_player0 = variables_vector.back() == 0;
 	vertices_player1 = variables_vector.back() == 1;
 	edges = (variables_vector.back() == 0 && variables_dash_vector.back() == 1) || (variables_vector.back() == 1 && variables_dash_vector.back() == 0);//variables_vector.back() == 1-variables_dash_vector.back();
@@ -481,6 +482,57 @@ void multi_wassertank(z3::expr & initial_vertices, z3::expr & safe_vertices, z3:
 		edges = edges && ((variables_vector[i] == variables_dash_vector[i] +1) || (variables_vector[i] == variables_dash_vector[i] ) || (variables_vector[i] == variables_dash_vector[i] -1));
 	}
 	n = 100;
+}
+
+void evasion(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr & vertices_player0, z3::expr & vertices_player1, z3::expr & edges,int & n)
+{
+	prep(5);
+	auto x_1 = variables_vector[0];
+	auto y_1 = variables_vector[1];
+	auto x_2 = variables_vector[2];
+	auto y_2 = variables_vector[3];
+	auto z = variables_vector[4];
+
+	auto x_1_dash = variables_dash_vector[0];
+	auto y_1_dash = variables_dash_vector[1];
+	auto x_2_dash = variables_dash_vector[2];
+	auto y_2_dash = variables_dash_vector[3];
+	auto z_dash = variables_dash_vector[4];
+
+
+	initial_vertices = (x_1 == 0) && (y_1 == 0) && (x_2 == 1) && (y_2 == 1) && (z == 0);
+	safe_vertices = x_1 != x_2 || y_1 != y_2;
+	vertices_player0 = (z == 0);
+	vertices_player1 = (z == 1);
+	/*edges = ((x_1 == x_1_dash +1 || x_1 == x_1_dash || x_1 == x_1_dash -1) && (y_1 == y_1_dash +1 || y_1 == y_1_dash -1 || y_1 == y_1_dash) && (z == 1-z_dash) && (z == 0))
+	|| ((x_2 == x_2_dash +1 || x_2 == x_2_dash || x_2 == x_2_dash -1) && (y_2 == y_2_dash +1 || y_2 == y_2_dash -1 || y_2 == y_2_dash) && (z == 1-z_dash) && (z == 1));
+	*/
+	edges = 
+	   (x_1 == x_1_dash  && y_1 == y_1_dash && z == 0 && z_dash == 1 && x_2 == x_2_dash && y_2 == y_2_dash) 
+	|| (x_1 == x_1_dash  && y_1 == y_1_dash +1 && z == 0 && z_dash == 1 && x_2 == x_2_dash && y_2 == y_2_dash) 
+	|| (x_1 == x_1_dash  && y_1 == y_1_dash -1 && z == 0 && z_dash == 1 && x_2 == x_2_dash && y_2 == y_2_dash) 
+	
+	|| (x_1 == x_1_dash +1 && y_1 == y_1_dash && z == 0 && z_dash == 1 && x_2 == x_2_dash && y_2 == y_2_dash) 
+	|| (x_1 == x_1_dash +1 && y_1 == y_1_dash +1 && z == 0 && z_dash == 1 && x_2 == x_2_dash && y_2 == y_2_dash) 
+	|| (x_1 == x_1_dash +1 && y_1 == y_1_dash -1 && z == 0 && z_dash == 1 && x_2 == x_2_dash && y_2 == y_2_dash) 
+	
+	|| (x_1 == x_1_dash -1 && y_1 == y_1_dash  && z == 0 && z_dash == 1 && x_2 == x_2_dash && y_2 == y_2_dash) 
+	|| (x_1 == x_1_dash -1 && y_1 == y_1_dash +1 && z == 0 && z_dash == 1 && x_2 == x_2_dash && y_2 == y_2_dash) 
+	|| (x_1 == x_1_dash -1 && y_1 == y_1_dash -1 && z == 0 && z_dash == 1 && x_2 == x_2_dash && y_2 == y_2_dash) 
+	
+	|| (x_1 == x_1_dash  && y_1 == y_1_dash && z == 1 && z_dash == 0 && x_2 == x_2_dash && y_2 == y_2_dash)
+	|| (x_1 == x_1_dash  && y_1 == y_1_dash && z == 1 && z_dash == 0 && x_2 == x_2_dash && y_2 == y_2_dash +1)
+	|| (x_1 == x_1_dash  && y_1 == y_1_dash && z == 1 && z_dash == 0 && x_2 == x_2_dash && y_2 == y_2_dash -1)
+	
+	|| (x_1 == x_1_dash  && y_1 == y_1_dash && z == 1 && z_dash == 0 && x_2 == x_2_dash -1 && y_2 == y_2_dash)
+	|| (x_1 == x_1_dash  && y_1 == y_1_dash && z == 1 && z_dash == 0 && x_2 == x_2_dash -1 && y_2 == y_2_dash +1)
+	|| (x_1 == x_1_dash  && y_1 == y_1_dash && z == 1 && z_dash == 0 && x_2 == x_2_dash -1 && y_2 == y_2_dash -1)
+	
+	|| (x_1 == x_1_dash  && y_1 == y_1_dash && z == 1 && z_dash == 0 && x_2 == x_2_dash +1 && y_2 == y_2_dash)
+	|| (x_1 == x_1_dash  && y_1 == y_1_dash && z == 1 && z_dash == 0 && x_2 == x_2_dash +1 && y_2 == y_2_dash +1)
+	|| (x_1 == x_1_dash  && y_1 == y_1_dash && z == 1 && z_dash == 0 && x_2 == x_2_dash +1 && y_2 == y_2_dash -1);
+	n = 100;
+
 }
 // parameter dreieck
 // mehrdimensionale fläche
@@ -526,51 +578,60 @@ int main()
 	 * 3. Player 0 und Player 1
 	 * 4. Edges
 	 * */
-	z3::expr initial_vertices = ctx.int_val(4);
-	z3::expr safe_vertices = ctx.int_val(4);
-	z3::expr vertices_player0 = ctx.int_val(4);
-	z3::expr vertices_player1 = ctx.int_val(4);
-	z3::expr edges = ctx.int_val(4);
-	int n;
-	//band_roboter(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
-	//quadrat(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 5);
-	//wassertank(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 5);
-	//wassertank_2(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 10,5);
-	//zwei_geraden(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 2,2);
-	multi_wassertank(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 6);
-	auto vertices = vertices_player0 || vertices_player1;
-	auto vertices_dash = vertices.substitute(variables_vector,variables_dash_vector);
-	auto hypothesis = ctx.bool_val(true);
-	z3::expr hypothesis_edges_test = hypothesis.substitute(variables_vector,variables_dash_vector);
-	bool flag = true;
-	int safety_counter = 0;
-	while (flag)
-	{
-		flag = false;
-
-		flag = initial_check(hypothesis, initial_vertices, ctx, variables_vector);
-		if (flag == false){
-			flag = safe_check(hypothesis,safe_vertices,ctx,variables_vector);
-		}
-		if (flag == false){
-			flag = ex_check(hypothesis, hypothesis_edges_test, vertices, vertices_dash,vertices_player0, edges, ctx, all_variables_vector, variables_vector, variables_dash_vector, n);
-		}
-		if (flag == false){
-			flag = uni_check(hypothesis, hypothesis_edges_test, vertices, vertices_dash,vertices_player1, edges, ctx, all_variables_vector, variables_vector, variables_dash_vector, n);
-		}
-		write();
-		system("learner/main data/dillig12.bpl");
-		std::ifstream ifs("data/dillig12.bpl.json");
-		json j = json::parse(ifs);
-		hypothesis = read_json(j);
-		std::cout << "\n HYPOTHESIS: " << hypothesis << std::endl;
-		hypothesis_edges_test  = hypothesis.substitute(variables_vector,variables_dash_vector);
-		safety_counter++;
-		if (safety_counter >= 25)
+	try{
+		z3::expr initial_vertices = ctx.int_val(4);
+		z3::expr safe_vertices = ctx.int_val(4);
+		z3::expr vertices_player0 = ctx.int_val(4);
+		z3::expr vertices_player1 = ctx.int_val(4);
+		z3::expr edges = ctx.int_val(4);
+		int n;
+		//band_roboter(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
+		//quadrat(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 1);
+		//wassertank(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 2);
+		//wassertank_2(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 10,5);
+		//zwei_geraden(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 2,2);
+		//multi_wassertank(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 5);
+		evasion(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
+		auto vertices = vertices_player0 || vertices_player1;
+		auto vertices_dash = vertices.substitute(variables_vector,variables_dash_vector);
+		auto hypothesis = ctx.bool_val(true);
+		z3::expr hypothesis_edges_test = hypothesis.substitute(variables_vector,variables_dash_vector);
+		bool flag = true;
+		int safety_counter = 0;
+		while (flag)
 		{
 			flag = false;
-			std::cout << "Safety counter reached" << std::endl;
+
+			flag = initial_check(hypothesis, initial_vertices, ctx, variables_vector);
+			if (flag == false){
+				flag = safe_check(hypothesis,safe_vertices,ctx,variables_vector);
+			}
+			if (flag == false){
+				flag = ex_check(hypothesis, hypothesis_edges_test, vertices, vertices_dash,vertices_player0, edges, ctx, all_variables_vector, variables_vector, variables_dash_vector, n);
+			}
+			if (flag == false){
+				flag = uni_check(hypothesis, hypothesis_edges_test, vertices, vertices_dash,vertices_player1, edges, ctx, all_variables_vector, variables_vector, variables_dash_vector, n);
+			}
+			write();
+			system("learner/main data/dillig12.bpl");
+			std::ifstream ifs("data/dillig12.bpl.json");
+			json j = json::parse(ifs);
+			hypothesis = read_json(j);
+			std::cout << "\n HYPOTHESIS: " << hypothesis << std::endl;
+			hypothesis_edges_test  = hypothesis.substitute(variables_vector,variables_dash_vector);
+			safety_counter++;
+			if (safety_counter >= 5)
+			{
+				flag = false;
+				std::cout << "Safety counter reached" << std::endl;
+			}
 		}
+		std::cout << safety_counter;
 	}
-	std::cout << safety_counter;
+	catch(std::runtime_error e)
+	{
+		std::cout << "Runtime error: " << e.what();
+	}
+	//system("PAUSE");
+	return EXIT_SUCCESS;
 }

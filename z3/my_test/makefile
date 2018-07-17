@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS =-I. -std=c++11 -I ../src/api/c++ -I ../src/api/ -L ../build/ -lz3
-CFLAGS += -Wall -g
+CFLAGS += -Wall
 DEPS = teacher.h
 OBJ = main.o
 ODIR=.

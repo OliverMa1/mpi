@@ -142,7 +142,7 @@ const z3::expr & edges, z3::context & context,const z3::expr_vector & all_variab
 			z3::expr test = context.bool_val(true);
 			for(int i = 0; (unsigned)i < variables.size(); i++){
 				test =  (test) && (all_variables[i] == m.eval(all_variables[i]));
-				int j;
+				int j = 0;
 				Z3_get_numeral_int(context, m.eval(variables[i]), &j);
 				tmp.push_back(j);
 			}
@@ -218,9 +218,9 @@ const z3::expr & edges, z3::context & context, const z3::expr_vector & all_varia
 			std::cout << "counterexample for universal condition!:\n" << solver.get_model() << "\n";
 			z3::expr test = context.bool_val(true);
 			std::vector<int> tmp;
-			for(int i = 0; (unsigned)i < sol.size(); i++){
+			for(int i = 0; (unsigned)i < variables.size(); i++){
 				test =  (test) && (variables[i] == m.eval(variables[i]));
-				int j;
+				int j = 0;
 				Z3_get_numeral_int(context, m.eval(variables[i]), &j);
 				tmp.push_back(j);
 			}
