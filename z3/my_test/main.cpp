@@ -116,6 +116,36 @@ z3::expr read_json(json j)
 	}
 	
 }
+void prep_from_json(json j, const char * smt2_path)
+{
+	for (int i = 0; (unsigned)i < j["variables"].size(); i ++)
+	{
+		std::cout << j["variables"][i] << std::endl;
+		z3::expr x = ctx.int_const(j["variables"][i].get<std::string>().c_str());
+		variables_vector.push_back(x);
+	}
+		for (int i = 0; (unsigned)i < j["variables_dash"].size(); i ++)
+	{
+		std::cout << j["variables_dash"][i] << std::endl;
+		z3::expr x = ctx.int_const(j["variables_dash"][i].get<std::string>().c_str());
+		variables_dash_vector.push_back(x);
+	}
+	auto x = variables_vector[0] + variables_dash_vector[1] <= 0;
+	z3::solver s(ctx);
+	s.add(x);
+	std::cout << s << std::endl;
+	if (s.check())
+	{
+		
+		auto m = s.get_model();
+		std::cout << "SAT!" << std::endl << m << std::endl;
+		
+	}
+	else
+	{
+		std::cout << "UNSAT" << std::endl;
+	}
+}
 void prep(int  i)
 {
 	std::ofstream myfile;
@@ -558,7 +588,17 @@ void evasion_2(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr &
 }
 // parameter dreieck
 // mehrdimensionale fläche
-/* wir wollen zusätzliche expr erlauben, also zu den variablen x,y,z
+
+/* variablen namen
+ * 
+ * 0. Player 0
+ * 1. Player 1
+ * 2. Edges
+ * 3. Safe
+ * 4. Init
+ * 
+ * 
+ * wir wollen zusätzliche expr erlauben, also zu den variablen x,y,z
  * sowas wie, x+y als zusätzliche variable, oder x² + y²
  * 0. Init für attr braucht die expr als Eingabe (expr_vector)
  * 0.1 Einsetzen der expr mit neuen Variablen
@@ -571,45 +611,10 @@ void evasion_2(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr &
  * */
 int main()
 {
-
-	//my_test();
-	/*auto four = ctx.int_val(4);
-	z3::expr x = variables_vector[0];
-	auto y = variables_vector[1];
-	z3::expr x_dash = variables_dash_vector[0];
-	auto y_dash = variables_dash_vector[1];
-	z3::expr hypothesis_edges = (x_dash < 10 && y_dash == 2);
-	auto node_0 = ((x == 2) && (y == 2));
-	auto node_1 = ((x == 3) && (y == 3));
-	auto node_2 = ((x == 2) && (y == 3));
-	auto node_3 = ((x == 3) && (y == 2));
-	auto node_4 = ((x == 4) && (y == 2));
-	auto node_5 = ((x == 4) && (y == 4));
-	auto node_0_dash = ((x_dash == 2) && (y_dash == 2));
-	auto node_1_dash = ((x_dash == 3) && (y_dash == 3));
-	auto node_2_dash = ((x_dash == 2) && (y_dash == 3));
-	auto node_3_dash = ((x_dash == 3) && (y_dash == 2));
-	auto node_4_dash = ((x_dash == 4) && (y_dash == 2));
-	auto node_5_dash = ((x_dash == 4) && (y_dash == 4));
-	
-	z3::expr initial_vertices = node_0;
-	z3::expr safe_vertices = node_0 || node_4 || node_3;
-	auto vertices_player0 = node_0 || node_1 || node_5;
-	auto vertices_player1 = node_2 || node_3 || node_4;
-	auto vertices = node_0 || node_1 || node_2 || node_3 || node_4;//vertices_player0 || vertices_player1;
-	auto vertices_dash = vertices.substitute(variables_vector,variables_dash_vector);
-	auto edges = (node_0 && node_1_dash)|| (node_0 && node_2_dash) || (node_0 && node_3_dash) 
-	|| (node_0 && node_1_dash) || (node_3 && node_4_dash) || (node_4 && node_0_dash) || node_1 && node_3_dash || node_2 && node_3_dash || node_2 && node_0_dash || node_2 && node_1_dash || node_1 && node_5_dash || node_0 && node_5_dash;
-	const int n = 10;
-	z3::expr hypothesis =  node_1 || node_4 || node_2;
-	* */
-	
-	/* 
-	 * 1. Initial Vertices
-	 * 2. Safe Vertices
-	 * 3. Player 0 und Player 1
-	 * 4. Edges
-	 * */
+	std::ifstream ifs("data/input.json");
+	json j = json::parse(ifs);
+	prep_from_json(j, "data/input.smt2");
+/*
 	try{
 		z3::expr initial_vertices = ctx.int_val(4);
 		z3::expr safe_vertices = ctx.int_val(4);
@@ -653,7 +658,7 @@ int main()
 			std::cout << "\n HYPOTHESIS: " << hypothesis << std::endl;
 			hypothesis_edges_test  = hypothesis.substitute(variables_vector,variables_dash_vector);
 			safety_counter++;
-			if (safety_counter >= 100)
+			if (safety_counter >= 0)
 			{
 				flag = false;
 				std::cout << "Safety counter reached" << std::endl;
@@ -666,5 +671,5 @@ int main()
 		std::cout << "Runtime error: " << e.what();
 	}
 	//system("PAUSE");
-	return EXIT_SUCCESS;
+	return EXIT_SUCCESS;*/
 }
