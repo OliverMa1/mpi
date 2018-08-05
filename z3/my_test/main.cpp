@@ -442,8 +442,8 @@ void zwei_geraden(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::exp
 	z3::expr x_dash = variables_dash_vector[0];
 	auto y_dash = variables_dash_vector[1];
 	auto z_dash = variables_dash_vector[2];
-	initial_vertices = (x == 0) && (y == 0) && (z == 0);
 	safe_vertices = (x - k1 <= y) && (x + k2 >= y);// && (z == 0 || z == 1);
+	initial_vertices = ((x == 0) && (y == 0) && (z == 0));// || (x == y && z == 0);
 	vertices_player0 = (z == 0);
 	vertices_player1 = (z == 1);
 	edges = (x == x_dash +1 || x == x_dash || x == x_dash -1) && (y == y_dash +1 || y == y_dash -1 || y == y_dash) && (z == 1-z_dash);
@@ -534,13 +534,45 @@ void evasion(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr & v
 	n = 100;
 
 }
+void evasion_2(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr & vertices_player0, z3::expr & vertices_player1, z3::expr & edges,int & n)
+{
+	prep(3);
+	auto x = variables_vector[0];
+	auto y = variables_vector[1];
+	auto z = variables_vector[2];
+
+	auto x_dash = variables_dash_vector[0];
+	auto y_dash = variables_dash_vector[1];
+	auto z_dash = variables_dash_vector[2];
+
+
+
+	safe_vertices = x > 0 || y > 0;
+	initial_vertices = safe_vertices && z == 0; //(x == 1) && (y == 1) && (z == 0);
+	vertices_player0 = (z == 0);
+	vertices_player1 = (z == 1);
+
+	edges = (x == x_dash || x == x_dash +1 || x == x_dash -1) && (y == y_dash || y == y_dash +1 || y == y_dash -1) && (z == 1-z_dash);
+	n = 100;
+
+}
 // parameter dreieck
 // mehrdimensionale fläche
-
+/* wir wollen zusätzliche expr erlauben, also zu den variablen x,y,z
+ * sowas wie, x+y als zusätzliche variable, oder x² + y²
+ * 0. Init für attr braucht die expr als Eingabe (expr_vector)
+ * 0.1 Einsetzen der expr mit neuen Variablen
+ * 1. Teacher berechnet counterexamples nur für x,y,z
+ * 1.1 Nach dem Berechnen des Counterexamples, berechne die expr x+y,x-y,...
+ * 1.2 füge Counterexample mit allen Werten in data ein
+ * 2. Learner berechnet counterexamples mit allen var und expr x,y,z,x+y,x-y,... die mitgegben werden
+ * 2.1 Erhalte JSON von Learner, entschlüssle Variablennamen wie vorher
+ * 
+ * */
 int main()
 {
 
-
+	//my_test();
 	/*auto four = ctx.int_val(4);
 	z3::expr x = variables_vector[0];
 	auto y = variables_vector[1];
@@ -591,7 +623,8 @@ int main()
 		//wassertank_2(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 10,5);
 		//zwei_geraden(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 2,2);
 		//multi_wassertank(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 5);
-		evasion(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
+		//evasion(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
+		evasion_2(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
 		auto vertices = vertices_player0 || vertices_player1;
 		auto vertices_dash = vertices.substitute(variables_vector,variables_dash_vector);
 		auto hypothesis = ctx.bool_val(true);
@@ -620,7 +653,7 @@ int main()
 			std::cout << "\n HYPOTHESIS: " << hypothesis << std::endl;
 			hypothesis_edges_test  = hypothesis.substitute(variables_vector,variables_dash_vector);
 			safety_counter++;
-			if (safety_counter >= 5)
+			if (safety_counter >= 100)
 			{
 				flag = false;
 				std::cout << "Safety counter reached" << std::endl;

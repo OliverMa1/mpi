@@ -60,6 +60,7 @@ std::vector<int> check_safe_condition(const z3::expr & hypothesis, const z3::exp
 		z3::expr_vector sol(context);
 		for (unsigned i = 0; i < m.size(); i++){
 			z3::func_decl v = m[i];	
+			std::cout << "func-decl i == "  << i << " " << v << std::endl;
 			sol.push_back(m.get_const_interp(v));
 			
 		}
