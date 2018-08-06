@@ -70,6 +70,7 @@ struct Counterexample
 	std::map<std::string, z3::expr> variables;
 	z3::context ctx;
 	z3::expr_vector variables_vector(ctx);
+	z3::expr_vector exprs(ctx);
 	z3::expr_vector all_variables_vector(ctx);
 	z3::expr_vector variables_dash_vector(ctx);
 	
@@ -116,20 +117,52 @@ z3::expr read_json(json j)
 	}
 	
 }
-void prep_from_json(json j, const char * smt2_path)
+void prep_from_json(json j, const char * smt2_path,z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr & vertices_player0, z3::expr & vertices_player1, z3::expr & edges,int & n)
 {
+	std::ofstream myfile;
+	myfile.open("data/dillig12.bpl.attributes");
+	myfile << "cat,$func,1\n";
+	if (j["variables"].size() != j["variables_dash"].size())
+	{
+			throw std::runtime_error("Variables size != Variables_dash size");
+	}
+	int i = j["successors"];
+	std::cout << i << std::endl;
 	for (int i = 0; (unsigned)i < j["variables"].size(); i ++)
 	{
-		std::cout << j["variables"][i] << std::endl;
+		myfile << "int," << j["variables"][i].get<std::string>() << "\n";
+		std::cout << j["variables"][i].get<std::string>() << std::endl;
 		z3::expr x = ctx.int_const(j["variables"][i].get<std::string>().c_str());
 		variables_vector.push_back(x);
+		all_variables_vector.push_back(x);
+		variables.insert(std::make_pair(j["variables"][i].get<std::string>(),x));
 	}
-		for (int i = 0; (unsigned)i < j["variables_dash"].size(); i ++)
+	for (int i = 0; (unsigned)i < j["variables_dash"].size(); i ++)
 	{
-		std::cout << j["variables_dash"][i] << std::endl;
+		std::cout << j["variables_dash"][i].get<std::string>() << std::endl;
 		z3::expr x = ctx.int_const(j["variables_dash"][i].get<std::string>().c_str());
 		variables_dash_vector.push_back(x);
+		all_variables_vector.push_back(x);
 	}
+
+	auto test = ctx.parse_file(smt2_path);
+	if (test.size() < 5)
+	{
+		throw std::runtime_error("Variables size != Variables_dash size");	
+	}
+	initial_vertices = test[0];
+	safe_vertices = test[1];
+	vertices_player0 = test[2];
+	vertices_player1 = test[3];
+	edges = test[4];
+	// füge die zusätzlichen expr hinzu, mit namen???
+	for (int i = 5; (unsigned)i < test.size(); i ++)
+	{
+		std::cout << test[i] << std::endl;
+		exprs.push_back(test[i]);
+		
+	}
+	n = j["successors"];
 	auto x = variables_vector[0] + variables_dash_vector[1] <= 0;
 	z3::solver s(ctx);
 	s.add(x);
@@ -611,17 +644,24 @@ void evasion_2(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr &
  * */
 int main()
 {
-	std::ifstream ifs("data/input.json");
+	z3::expr initial_vertices = ctx.int_val(4);
+	z3::expr safe_vertices = ctx.int_val(4);
+	z3::expr vertices_player0 = ctx.int_val(4);
+	z3::expr vertices_player1 = ctx.int_val(4);
+	z3::expr edges = ctx.int_val(4);
+	int n;
+	std::ifstream ifs("data/laufband/input.json");
 	json j = json::parse(ifs);
-	prep_from_json(j, "data/input.smt2");
-/*
 	try{
-		z3::expr initial_vertices = ctx.int_val(4);
-		z3::expr safe_vertices = ctx.int_val(4);
-		z3::expr vertices_player0 = ctx.int_val(4);
-		z3::expr vertices_player1 = ctx.int_val(4);
-		z3::expr edges = ctx.int_val(4);
-		int n;
+		prep_from_json(j, "data/laufband/input.smt2",initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
+	}
+		catch (const z3::exception & e)
+	{
+		std::cout << e.msg() << std::endl;
+		//throw;
+	}
+
+	try{
 		//band_roboter(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
 		//quadrat(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 1);
 		//wassertank(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 2);
@@ -629,7 +669,7 @@ int main()
 		//zwei_geraden(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 2,2);
 		//multi_wassertank(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 5);
 		//evasion(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
-		evasion_2(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
+		//evasion_2(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
 		auto vertices = vertices_player0 || vertices_player1;
 		auto vertices_dash = vertices.substitute(variables_vector,variables_dash_vector);
 		auto hypothesis = ctx.bool_val(true);
@@ -658,7 +698,7 @@ int main()
 			std::cout << "\n HYPOTHESIS: " << hypothesis << std::endl;
 			hypothesis_edges_test  = hypothesis.substitute(variables_vector,variables_dash_vector);
 			safety_counter++;
-			if (safety_counter >= 0)
+			if (safety_counter >= 20)
 			{
 				flag = false;
 				std::cout << "Safety counter reached" << std::endl;
@@ -671,5 +711,5 @@ int main()
 		std::cout << "Runtime error: " << e.what();
 	}
 	//system("PAUSE");
-	return EXIT_SUCCESS;*/
+	return EXIT_SUCCESS;
 }
