@@ -28,7 +28,7 @@ struct Counterexample
 	std::vector<int> datapoints;
 	// -1 = ?; 0 = false; 1 = true
 	int classification;
-	Counterexample(const std::vector<int>  & dp, int c): datapoints(dp), classification(c){}
+	Counterexample(std::vector<int>  & dp, int c): datapoints(dp), classification(c){}
 	friend bool operator==(const Counterexample& c1, const Counterexample& c2)
 	{
 		bool res;
@@ -68,9 +68,13 @@ struct Counterexample
 	std::vector<Counterexample> counterexample_vector;
 	std::vector<std::vector<int>> horn_clauses;
 	std::map<std::string, z3::expr> variables;
+	std::map<std::string, z3::expr> expr_var_map;
+	std::map<std::string, z3::expr> expr_map;
+	std::map<z3::expr, z3::expr> expr_var_to_expr;
 	z3::context ctx;
 	z3::expr_vector variables_vector(ctx);
 	z3::expr_vector exprs(ctx);
+	z3::expr_vector exprs_var(ctx);
 	z3::expr_vector all_variables_vector(ctx);
 	z3::expr_vector variables_dash_vector(ctx);
 	
@@ -101,8 +105,26 @@ z3::expr read_json(json j)
 		it = variables.find(varname);
 		if (it == variables.end())
 		{
-			std::cout << varname << " nicht gefunden" << std::endl;
-			return ctx.bool_val(false);
+			it = expr_var_map.find(varname);
+			if (it == variables.end()){							
+				std::cout << varname << " nicht gefunden" << std::endl;
+				return ctx.bool_val(false);
+			}
+			else
+			{
+				z3::expr x = (it->second);	
+				it = expr_map.find(varname);
+				if (it == variables.end()){							
+					std::cout << varname << " nicht gefunden" << std::endl;
+					throw std::runtime_error("Varname nicht gefunden");	
+				}
+				z3::expr expr_x = (it -> second);
+				z3::expr left = read_json(j["children"][0]);
+				z3::expr right = read_json(j["children"][1]);
+				z3::expr c = exists(x,(x <= ctx.int_val(j["cut"].get<int>()))&& expr_x);
+				z3::expr b = ite(c,left,right);
+				return b;
+			}
 		}
 		else
 		{
@@ -144,6 +166,14 @@ void prep_from_json(json j, const char * smt2_path,z3::expr & initial_vertices, 
 		variables_dash_vector.push_back(x);
 		all_variables_vector.push_back(x);
 	}
+	for (int i = 0; (unsigned)i < j["exprs"].size(); i ++)
+	{
+		std::cout << "added to expr_var: " << j["exprs"][i].get<std::string>() << std::endl;
+		z3::expr x = ctx.int_const(j["exprs"][i].get<std::string>().c_str());
+		exprs_var.push_back(x);
+		myfile << "int," << j["exprs"][i].get<std::string>() << "\n";
+		expr_var_map.insert(std::make_pair(j["exprs"][i].get<std::string>(),x));
+	}
 
 	auto test = ctx.parse_file(smt2_path);
 	if (test.size() < 5)
@@ -158,20 +188,27 @@ void prep_from_json(json j, const char * smt2_path,z3::expr & initial_vertices, 
 	// füge die zusätzlichen expr hinzu, mit namen???
 	for (int i = 5; (unsigned)i < test.size(); i ++)
 	{
-		std::cout << test[i] << std::endl;
+		std::cout << "Added to exprs" << test[i] << std::endl;
 		exprs.push_back(test[i]);
-		
+		expr_map.insert(std::make_pair(j["exprs"][i-5].get<std::string>(),test[i]));
+		std::cout << "added " << exprs_var[i-5] << " to " << test[i] << std::endl;
 	}
 	n = j["successors"];
-	auto x = variables_vector[0] + variables_dash_vector[1] <= 0;
+	auto z = ctx.int_const("x+y");
+	auto x = ctx.int_const("x");
+	auto y = ctx.int_const("y");
+	auto erg = x ==3 && y == 3;
+	auto erg1 = z <= -2;
 	z3::solver s(ctx);
-	s.add(x);
+	auto test_expr = exists(z, exprs[0] && erg1);
+	s.add(test_expr);
+	//s.add(erg1);
 	std::cout << s << std::endl;
 	if (s.check())
 	{
 		
 		auto m = s.get_model();
-		std::cout << "SAT!" << std::endl << m << std::endl;
+		std::cout << "SAT!" << std::endl << m << " test: " << m.eval(z) <<std::endl;
 		
 	}
 	else
@@ -236,8 +273,47 @@ void store_horn(std::vector<int> horn)
 		}
 		horn_clauses.push_back(horn);
 }
+void eval_exprs(std::vector<int> & ce)
+{
+	for (int i = 0; (unsigned)i < exprs_var.size(); i++)
+	{
+			z3::expr a = exprs[i];
+			z3::solver s(ctx);
+			s.add(a);
+			for (int j = 0; (unsigned) j < variables_vector.size(); j++)
+			{
+				s.add(variables_vector[j] == ce[j]);
+			}
+			if (s.check())
+			{
+				auto m = s.get_model();
+				std::cout << " MODEL " << m << " " <<  m.eval(exprs_var[i]) << std::endl;
+				int b;
+				Z3_get_numeral_int(ctx, m.eval(exprs_var[i]), &b);
+				std::cout << "b " << b << std::endl;
+				ce.push_back(b);
+				for (int z = 0; z < ce.size(); z++)
+				{
+					std::cout << "Model " << z << ": " << ce[z] << std::endl;
+				}
+			}
+			else
+			{
+				throw std::runtime_error("expr can't be evaluated");	
+			}
+	}
+}
 int store(Counterexample  ce)
 {
+	for (int i = 0;  i < ce.datapoints.size(); i++)
+	{
+		std::cout << "before change "  << i << ": " << ce.datapoints[i] << std::endl;
+	}
+	eval_exprs(ce.datapoints);
+	for (int i = 0;  i < ce.datapoints.size(); i++)
+	{
+		std::cout << "after change "  << i << ": " << ce.datapoints[i] << std::endl;
+	}
 	int position = -1;
 	std::map<Counterexample, int>::iterator it = counterexample_map.find(ce);
 	if (it != counterexample_map.end())
@@ -280,20 +356,21 @@ int store(Counterexample  ce)
 	return position;
 }
 
-int create_and_store_initial_counterexample(const std::vector<int> & ce)
+
+int create_and_store_initial_counterexample(std::vector<int> & ce)
 {	
 	return store(Counterexample(ce,0));
 }
 
-int create_and_store_safe_counterexample(const std::vector<int> & ce)
+int create_and_store_safe_counterexample(std::vector<int> & ce)
 {
 	return store(Counterexample(ce,1));
 }
-int create_and_store_unclassified_counterexample(const std::vector<int> & ce)
+int create_and_store_unclassified_counterexample(std::vector<int> & ce)
 {
 	return store(Counterexample(ce,-1));
 }
-bool create_and_store_existential_counterexample(const std::vector<std::vector<int>> & ce)
+bool create_and_store_existential_counterexample(std::vector<std::vector<int>> & ce)
 {
 	std::vector<int> a;
 	std::vector<int> positions;
@@ -315,7 +392,7 @@ bool create_and_store_existential_counterexample(const std::vector<std::vector<i
 	}
 	return success;	
 }
-bool create_and_store_universal_counterexample(const std::vector<std::vector<int>>  & ce)
+bool create_and_store_universal_counterexample(std::vector<std::vector<int>>  & ce)
 {
 	bool success = true;
 	int a = create_and_store_unclassified_counterexample(ce[0]);
