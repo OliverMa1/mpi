@@ -1,0 +1,2 @@
+{"variables":["x","y","z"],"variables_dash":["x_dash","y_dash","z_dash"],"successors":10,"exprs":["x+y","x-y"]}
+

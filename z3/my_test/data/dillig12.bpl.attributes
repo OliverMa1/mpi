@@ -1,4 +1,6 @@
 cat,$func,1
 int,x
 int,y
+int,z
 int,x+y
+int,x-y

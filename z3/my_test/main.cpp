@@ -193,6 +193,10 @@ void prep_from_json(json j, const char * smt2_path,z3::expr & initial_vertices, 
 		expr_map.insert(std::make_pair(j["exprs"][i-5].get<std::string>(),test[i]));
 		std::cout << "added " << exprs_var[i-5] << " to " << test[i] << std::endl;
 	}
+	if (exprs.size() != exprs_var.size())
+	{
+		throw std::runtime_error("Exprs size != Exprs Variable size");	
+	}
 	n = j["successors"];
 	auto z = ctx.int_const("x+y");
 	auto x = ctx.int_const("x");
@@ -292,7 +296,7 @@ void eval_exprs(std::vector<int> & ce)
 				Z3_get_numeral_int(ctx, m.eval(exprs_var[i]), &b);
 				std::cout << "b " << b << std::endl;
 				ce.push_back(b);
-				for (int z = 0; z < ce.size(); z++)
+				for (int z = 0; (unsigned)z < ce.size(); z++)
 				{
 					std::cout << "Model " << z << ": " << ce[z] << std::endl;
 				}
@@ -305,12 +309,12 @@ void eval_exprs(std::vector<int> & ce)
 }
 int store(Counterexample  ce)
 {
-	for (int i = 0;  i < ce.datapoints.size(); i++)
+	for (int i = 0;  (unsigned)i < ce.datapoints.size(); i++)
 	{
 		std::cout << "before change "  << i << ": " << ce.datapoints[i] << std::endl;
 	}
 	eval_exprs(ce.datapoints);
-	for (int i = 0;  i < ce.datapoints.size(); i++)
+	for (int i = 0;  (unsigned)i < ce.datapoints.size(); i++)
 	{
 		std::cout << "after change "  << i << ": " << ce.datapoints[i] << std::endl;
 	}
@@ -727,10 +731,10 @@ int main()
 	z3::expr vertices_player1 = ctx.int_val(4);
 	z3::expr edges = ctx.int_val(4);
 	int n;
-	std::ifstream ifs("data/laufband/input.json");
+	std::ifstream ifs("data/zweigeraden/input.json");
 	json j = json::parse(ifs);
 	try{
-		prep_from_json(j, "data/laufband/input.smt2",initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
+		prep_from_json(j, "data/zweigeraden/input.smt2",initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
 	}
 		catch (const z3::exception & e)
 	{
@@ -775,7 +779,7 @@ int main()
 			std::cout << "\n HYPOTHESIS: " << hypothesis << std::endl;
 			hypothesis_edges_test  = hypothesis.substitute(variables_vector,variables_dash_vector);
 			safety_counter++;
-			if (safety_counter >= 20)
+			if (safety_counter >= 200)
 			{
 				flag = false;
 				std::cout << "Safety counter reached" << std::endl;
