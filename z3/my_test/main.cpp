@@ -114,14 +114,14 @@ z3::expr read_json(json j)
 			{
 				z3::expr x = (it->second);	
 				it = expr_map.find(varname);
-				if (it == variables.end()){							
+				if (it == expr_map.end()){							
 					std::cout << varname << " nicht gefunden" << std::endl;
 					throw std::runtime_error("Varname nicht gefunden");	
 				}
 				z3::expr expr_x = (it -> second);
 				z3::expr left = read_json(j["children"][0]);
 				z3::expr right = read_json(j["children"][1]);
-				z3::expr c = exists(x,(x <= ctx.int_val(j["cut"].get<int>()))&& expr_x);
+				z3::expr c = (expr_x <= ctx.int_val(j["cut"].get<int>()));
 				z3::expr b = ite(c,left,right);
 				return b;
 			}
@@ -189,9 +189,23 @@ void prep_from_json(json j, const char * smt2_path,z3::expr & initial_vertices, 
 	for (int i = 5; (unsigned)i < test.size(); i ++)
 	{
 		std::cout << "Added to exprs" << test[i] << std::endl;
-		exprs.push_back(test[i]);
-		expr_map.insert(std::make_pair(j["exprs"][i-5].get<std::string>(),test[i]));
-		std::cout << "added " << exprs_var[i-5] << " to " << test[i] << std::endl;
+		std::cout << "Testing... " << test[i].is_eq() << std::endl;
+		auto testing0 = test[i].arg(0);
+		auto testing1 = test[i].arg(1);
+		std::cout << "Testing..." << testing0 << " " << testing1 << std::endl;
+		std::cout << "Testing value" << (testing0.is_numeral()) << std::endl;
+		std::cout << "Testing value" << (testing1.is_int()) << std::endl;
+		if (!testing0.is_numeral())
+		{
+			throw std::runtime_error("Wrong Format for additional Expr! Left side is not a numeral!");	
+		}
+		if (!testing1.is_int())
+		{
+			throw std::runtime_error("Wrong Format for additional Expr! Right side is not an integer expr!");	
+		}
+		exprs.push_back(testing1);
+		expr_map.insert(std::make_pair(j["exprs"][i-5].get<std::string>(),testing1));
+		std::cout << "added " << exprs_var[i-5] << " to " << testing1 << std::endl;
 	}
 	if (exprs.size() != exprs_var.size())
 	{
@@ -204,7 +218,7 @@ void prep_from_json(json j, const char * smt2_path,z3::expr & initial_vertices, 
 	auto erg = x ==3 && y == 3;
 	auto erg1 = z <= -2;
 	z3::solver s(ctx);
-	auto test_expr = exists(z, exprs[0] && erg1);
+	auto test_expr = erg;
 	s.add(test_expr);
 	//s.add(erg1);
 	std::cout << s << std::endl;
@@ -283,7 +297,7 @@ void eval_exprs(std::vector<int> & ce)
 	{
 			z3::expr a = exprs[i];
 			z3::solver s(ctx);
-			s.add(a);
+			//s.add(a);
 			for (int j = 0; (unsigned) j < variables_vector.size(); j++)
 			{
 				s.add(variables_vector[j] == ce[j]);
@@ -291,9 +305,9 @@ void eval_exprs(std::vector<int> & ce)
 			if (s.check())
 			{
 				auto m = s.get_model();
-				std::cout << " MODEL " << m << " " <<  m.eval(exprs_var[i]) << std::endl;
+				std::cout << " MODEL " << m << " eval "<< exprs[i] << " "  <<  m.eval(exprs[i]) << std::endl;
 				int b;
-				Z3_get_numeral_int(ctx, m.eval(exprs_var[i]), &b);
+				Z3_get_numeral_int(ctx, m.eval(exprs[i]), &b);
 				std::cout << "b " << b << std::endl;
 				ce.push_back(b);
 				for (int z = 0; (unsigned)z < ce.size(); z++)
@@ -779,7 +793,7 @@ int main()
 			std::cout << "\n HYPOTHESIS: " << hypothesis << std::endl;
 			hypothesis_edges_test  = hypothesis.substitute(variables_vector,variables_dash_vector);
 			safety_counter++;
-			if (safety_counter >= 200)
+			if (safety_counter >= 50)
 			{
 				flag = false;
 				std::cout << "Safety counter reached" << std::endl;

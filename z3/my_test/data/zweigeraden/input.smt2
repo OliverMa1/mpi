@@ -19,5 +19,5 @@
 (assert(and(and(or(or(= x (+ x_dash 1)) (= x (- x_dash 1))) (= x x_dash))(or(or(= y (+ y_dash 1)) (= y (- y_dash 1))) (= y y_dash)))
 (= z (- 1 z_dash))))
 ;; one expr per assert
-(assert(= x+y (+ x y)))
-(assert(= x-y (- x y)))
+(assert(= 1 (+ x y)))
+(assert(= 0 (- x y)))
