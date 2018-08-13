@@ -7,21 +7,11 @@
 #include <iterator>
 #include <typeinfo>
 #include "z3++.h"
+#include "parserObject.h"
+#include "game.h"
 #include "teacher.h"
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
-
-namespace ns
-{
-	struct json_node
-	{
-		std::string attribute;
-		int cut;
-		bool classification;
-		std::vector<int> children;
-	};
-}
-//fange func ab
 
 struct Counterexample
 {
@@ -139,7 +129,7 @@ z3::expr read_json(json j)
 	}
 	
 }
-void prep_from_json(json j, const char * smt2_path,z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr & vertices_player0, z3::expr & vertices_player1, z3::expr & edges,int & n)
+void prep_from_json(json j,z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr & vertices_player0, z3::expr & vertices_player1, z3::expr & edges,int & n)
 {
 	std::ofstream myfile;
 	myfile.open("data/dillig12.bpl.attributes");
@@ -150,6 +140,7 @@ void prep_from_json(json j, const char * smt2_path,z3::expr & initial_vertices, 
 	}
 	int i = j["successors"];
 	std::cout << i << std::endl;
+	auto func_decl_v = z3::func_decl_vector(ctx);
 	for (int i = 0; (unsigned)i < j["variables"].size(); i ++)
 	{
 		myfile << "int," << j["variables"][i].get<std::string>() << "\n";
@@ -158,6 +149,8 @@ void prep_from_json(json j, const char * smt2_path,z3::expr & initial_vertices, 
 		variables_vector.push_back(x);
 		all_variables_vector.push_back(x);
 		variables.insert(std::make_pair(j["variables"][i].get<std::string>(),x));
+		auto a_decl = ctx.function(ctx.str_symbol(j["variables"][i].get<std::string>().c_str()), z3::sort_vector(ctx), ctx.int_sort());
+		func_decl_v.push_back(a_decl);
 	}
 	for (int i = 0; (unsigned)i < j["variables_dash"].size(); i ++)
 	{
@@ -165,6 +158,8 @@ void prep_from_json(json j, const char * smt2_path,z3::expr & initial_vertices, 
 		z3::expr x = ctx.int_const(j["variables_dash"][i].get<std::string>().c_str());
 		variables_dash_vector.push_back(x);
 		all_variables_vector.push_back(x);
+		auto a_decl = ctx.function(ctx.str_symbol(j["variables_dash"][i].get<std::string>().c_str()), z3::sort_vector(ctx), ctx.int_sort());
+		func_decl_v.push_back(a_decl);
 	}
 	for (int i = 0; (unsigned)i < j["exprs"].size(); i ++)
 	{
@@ -174,8 +169,8 @@ void prep_from_json(json j, const char * smt2_path,z3::expr & initial_vertices, 
 		myfile << "int," << j["exprs"][i].get<std::string>() << "\n";
 		expr_var_map.insert(std::make_pair(j["exprs"][i].get<std::string>(),x));
 	}
-
-	auto test = ctx.parse_file(smt2_path);
+	auto test = ctx.parse_string(j["smt2"].get<std::string>().c_str(), z3::sort_vector(ctx), func_decl_v);
+	//auto test = ctx.parse_file(smt2_path);
 	if (test.size() < 5)
 	{
 		throw std::runtime_error("Variables size != Variables_dash size");	
@@ -737,7 +732,8 @@ void evasion_2(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr &
  * 2.1 Erhalte JSON von Learner, entschlüssle Variablennamen wie vorher
  * 
  * */
-int main()
+void learner_teacher_loop(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n)
+int main(int argc, char* argv[])
 {
 	z3::expr initial_vertices = ctx.int_val(4);
 	z3::expr safe_vertices = ctx.int_val(4);
@@ -745,17 +741,23 @@ int main()
 	z3::expr vertices_player1 = ctx.int_val(4);
 	z3::expr edges = ctx.int_val(4);
 	int n;
-	std::ifstream ifs("data/zweigeraden/input.json");
-	json j = json::parse(ifs);
 	try{
-		prep_from_json(j, "data/zweigeraden/input.smt2",initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
+		//std::ifstream ifs("data/zweigeraden/input.json");
+		std::cout << argc << argv[1] << std::endl;
+		std::ifstream ifs(argv[1]);
+		json j = json::parse(ifs);
+		z3::expr_vector b(ctx);
+		b.push_back(initial_vertices);
+		ParserObject* a = new ParserObject(j);
+		//prep_from_json(j,initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
 	}
 		catch (const z3::exception & e)
 	{
-		std::cout << e.msg() << std::endl;
-		//throw;
+		std::cout << "oh shit" << std::endl;
+		throw std::runtime_error(e.msg());
+		return EXIT_FAILURE;
 	}
-
+/*
 	try{
 		//band_roboter(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
 		//quadrat(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n, 1);
@@ -805,6 +807,6 @@ int main()
 	{
 		std::cout << "Runtime error: " << e.what();
 	}
-	//system("PAUSE");
+	//system("PAUSE");*/
 	return EXIT_SUCCESS;
 }
