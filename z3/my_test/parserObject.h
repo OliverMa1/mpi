@@ -16,11 +16,8 @@ class ParserObject {
 	 * */
 	public :ParserObject(json& js)//, z3::expr_vector & variables, z3::expr_vector & exprs, int successors)
 	{
-		
-		game = parse_json(js);
-		game->print(1);
 	}
-	Game* parse_json(json j)
+	Game* parse_json(z3::context & ctx, json j)
 	{
 		std::cout << j << std::endl;
 		std::vector<std::string> variables_vector;
@@ -35,11 +32,6 @@ class ParserObject {
 			std::cout << j["variables"][i].get<std::string>() << std::endl;
 			variables_vector.push_back(j["variables"][i].get<std::string>());
 		}
-				for (int i = 0; i < variables_vector.size(); i++)
-		
-		{
-			std::cout<< "TEST " << variables_vector[i] << std::endl;
-		}
 		for (int i = 0; (unsigned)i < j["variables_dash"].size(); i ++)
 		{
 			std::cout << j["variables_dash"][i].get<std::string>() << std::endl;
@@ -50,12 +42,8 @@ class ParserObject {
 			std::cout << "added to expr_var: " << j["exprs"][i].get<std::string>() << std::endl;
 			exprs_var.push_back(j["exprs"][i].get<std::string>());
 		}
-		for (int i = 0; i < variables_vector.size(); i++)
-		
-		{
-			std::cout<< "TEST " << variables_vector[i] << std::endl;
-		}
-		return new Game(variables_vector, variables_dash_vector, exprs_var, smt2lib, i);
+
+		return new Game(ctx,variables_vector, variables_dash_vector, exprs_var, smt2lib, i);
 	}
 	
 	private :

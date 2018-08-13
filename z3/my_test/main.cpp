@@ -57,7 +57,8 @@ struct Counterexample
 	std::map<int,Counterexample> position_map;
 	std::vector<Counterexample> counterexample_vector;
 	std::vector<std::vector<int>> horn_clauses;
-	std::map<std::string, z3::expr> variables;
+	z3::context ctx;
+	/*std::map<std::string, z3::expr> variables;
 	std::map<std::string, z3::expr> expr_var_map;
 	std::map<std::string, z3::expr> expr_map;
 	std::map<z3::expr, z3::expr> expr_var_to_expr;
@@ -66,14 +67,14 @@ struct Counterexample
 	z3::expr_vector exprs(ctx);
 	z3::expr_vector exprs_var(ctx);
 	z3::expr_vector all_variables_vector(ctx);
-	z3::expr_vector variables_dash_vector(ctx);
+	z3::expr_vector variables_dash_vector(ctx);*/
 	
-z3::expr read_json(json j)
+z3::expr read_json(json j,std::map<std::string, z3::expr> & variables, std::map<std::string, z3::expr> exprs_map)
 {
 
 	if(j["attribute"] == "$func")
 	{
-		return read_json(j["children"][0]);
+		return read_json(j["children"][0],variables,exprs_map);
 	}
 	else if (j["children"].is_null())
 	{
@@ -95,32 +96,25 @@ z3::expr read_json(json j)
 		it = variables.find(varname);
 		if (it == variables.end())
 		{
-			it = expr_var_map.find(varname);
-			if (it == variables.end()){							
-				std::cout << varname << " nicht gefunden" << std::endl;
-				return ctx.bool_val(false);
-			}
-			else
-			{
 				z3::expr x = (it->second);	
-				it = expr_map.find(varname);
-				if (it == expr_map.end()){							
+				it = exprs_map.find(varname);
+				if (it == exprs_map.end()){							
 					std::cout << varname << " nicht gefunden" << std::endl;
 					throw std::runtime_error("Varname nicht gefunden");	
 				}
 				z3::expr expr_x = (it -> second);
-				z3::expr left = read_json(j["children"][0]);
-				z3::expr right = read_json(j["children"][1]);
+				z3::expr left = read_json(j["children"][0],variables,exprs_map);
+				z3::expr right = read_json(j["children"][1],variables,exprs_map);
 				z3::expr c = (expr_x <= ctx.int_val(j["cut"].get<int>()));
 				z3::expr b = ite(c,left,right);
 				return b;
-			}
+			
 		}
 		else
 		{
 			z3::expr x = (it->second);	
-			z3::expr left = read_json(j["children"][0]);
-			z3::expr right = read_json(j["children"][1]);
+			z3::expr left = read_json(j["children"][0],variables,exprs_map);
+			z3::expr right = read_json(j["children"][1],variables,exprs_map);
 			z3::expr c = x <= ctx.int_val(j["cut"].get<int>());
 			z3::expr b = ite(c,left,right);
 			return b;
@@ -129,7 +123,7 @@ z3::expr read_json(json j)
 	}
 	
 }
-void prep_from_json(json j,z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr & vertices_player0, z3::expr & vertices_player1, z3::expr & edges,int & n)
+/*void prep_from_json(json j,z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr & vertices_player0, z3::expr & vertices_player1, z3::expr & edges,int & n)
 {
 	std::ofstream myfile;
 	myfile.open("data/dillig12.bpl.attributes");
@@ -253,7 +247,7 @@ void prep(int  i)
 	}
 	myfile.close();
 
-}
+}*/
 
 void write()
 {
@@ -286,9 +280,9 @@ void store_horn(std::vector<int> horn)
 		}
 		horn_clauses.push_back(horn);
 }
-void eval_exprs(std::vector<int> & ce)
+void eval_exprs(std::vector<int> & ce, z3::expr_vector variables_vector, z3::expr_vector exprs, z3::expr_vector expr_vars)
 {
-	for (int i = 0; (unsigned)i < exprs_var.size(); i++)
+	for (int i = 0; (unsigned)i < expr_vars.size(); i++)
 	{
 			z3::expr a = exprs[i];
 			z3::solver s(ctx);
@@ -316,13 +310,13 @@ void eval_exprs(std::vector<int> & ce)
 			}
 	}
 }
-int store(Counterexample  ce)
+int store(Counterexample  ce, z3::expr_vector variables_vector, z3::expr_vector exprs, z3::expr_vector expr_vars)
 {
 	for (int i = 0;  (unsigned)i < ce.datapoints.size(); i++)
 	{
 		std::cout << "before change "  << i << ": " << ce.datapoints[i] << std::endl;
 	}
-	eval_exprs(ce.datapoints);
+	eval_exprs(ce.datapoints, variables_vector, exprs, expr_vars);
 	for (int i = 0;  (unsigned)i < ce.datapoints.size(); i++)
 	{
 		std::cout << "after change "  << i << ": " << ce.datapoints[i] << std::endl;
@@ -370,27 +364,27 @@ int store(Counterexample  ce)
 }
 
 
-int create_and_store_initial_counterexample(std::vector<int> & ce)
+int create_and_store_initial_counterexample(std::vector<int> & ce, z3::expr_vector variables_vector, z3::expr_vector exprs, z3::expr_vector expr_vars)
 {	
-	return store(Counterexample(ce,0));
+	return store(Counterexample(ce,0),variables_vector, exprs, expr_vars);
 }
 
-int create_and_store_safe_counterexample(std::vector<int> & ce)
+int create_and_store_safe_counterexample(std::vector<int> & ce, z3::expr_vector variables_vector, z3::expr_vector exprs, z3::expr_vector expr_vars)
 {
-	return store(Counterexample(ce,1));
+	return store(Counterexample(ce,1),variables_vector, exprs, expr_vars);
 }
-int create_and_store_unclassified_counterexample(std::vector<int> & ce)
+int create_and_store_unclassified_counterexample(std::vector<int> & ce, z3::expr_vector variables_vector, z3::expr_vector exprs, z3::expr_vector expr_vars)
 {
-	return store(Counterexample(ce,-1));
+	return store(Counterexample(ce,-1),variables_vector, exprs, expr_vars);
 }
-bool create_and_store_existential_counterexample(std::vector<std::vector<int>> & ce)
+bool create_and_store_existential_counterexample(std::vector<std::vector<int>> & ce, z3::expr_vector variables_vector, z3::expr_vector exprs, z3::expr_vector expr_vars)
 {
 	std::vector<int> a;
 	std::vector<int> positions;
 	bool success = true;
 	for (int i = ce.size()-1; i >= 0; i--)
 	{
-		int position = create_and_store_unclassified_counterexample(ce[i]);
+		int position = create_and_store_unclassified_counterexample(ce[i],variables_vector, exprs, expr_vars);
 		if (position == -1){
 			success = false;
 		}
@@ -401,19 +395,20 @@ bool create_and_store_existential_counterexample(std::vector<std::vector<int>> &
 		store_horn(positions);
 	}
 	else{
-		store(Counterexample(ce[0],1));
+		store(Counterexample(ce[0],1),variables_vector, exprs, expr_vars);
 	}
 	return success;	
 }
-bool create_and_store_universal_counterexample(std::vector<std::vector<int>>  & ce)
+bool create_and_store_universal_counterexample(std::vector<std::vector<int>>  & ce, 
+z3::expr_vector variables_vector, z3::expr_vector exprs, z3::expr_vector expr_vars)
 {
 	bool success = true;
-	int a = create_and_store_unclassified_counterexample(ce[0]);
+	int a = create_and_store_unclassified_counterexample(ce[0],variables_vector, exprs, expr_vars);
 	std::cout << ce.size() << std::endl;
 	for (int i = 1; (unsigned)i < ce.size(); i++)
 	{
 		std::vector<int> positions;
-		int position = create_and_store_unclassified_counterexample(ce[i]);
+		int position = create_and_store_unclassified_counterexample(ce[i],variables_vector, exprs, expr_vars);
 		if (position == -1){
 			success = false;
 		}
@@ -423,7 +418,8 @@ bool create_and_store_universal_counterexample(std::vector<std::vector<int>>  & 
 	}
 	return success;		
 }
-bool initial_check(const z3::expr & hypothesis, const z3::expr & initial_vertices, z3::context & context, const z3::expr_vector & variables)
+bool initial_check(const z3::expr & hypothesis, const z3::expr & initial_vertices, z3::context & context,
+ const z3::expr_vector & variables, z3::expr_vector exprs, z3::expr_vector expr_vars)
 {
 	std::vector<int> test1;
 	bool flag = false;
@@ -436,12 +432,13 @@ bool initial_check(const z3::expr & hypothesis, const z3::expr & initial_vertice
 			for (int i = 0; (unsigned)i < test1.size(); i++){
 				std::cout << "Initial: " << i << ": " << test1[i] << std::endl;
 			} 
-			create_and_store_initial_counterexample(test1);
+			create_and_store_initial_counterexample(test1,variables, exprs, expr_vars);
 		}
 		return flag;
 }
 
-bool safe_check(const z3::expr & hypothesis, const z3::expr & safe_vertices, z3::context & context,const z3::expr_vector & variables)
+bool safe_check(const z3::expr & hypothesis, const z3::expr & safe_vertices, 
+z3::context & context,const z3::expr_vector & variables, z3::expr_vector exprs, z3::expr_vector expr_vars)
 
 {
 	bool flag = false;
@@ -456,7 +453,7 @@ bool safe_check(const z3::expr & hypothesis, const z3::expr & safe_vertices, z3:
 			for (int i = 0; (unsigned)i < test2.size(); i++){
 				std::cout << "Safe: " << i << ": " << test2[i] << std::endl;
 			}
-			create_and_store_safe_counterexample(test2); 
+			create_and_store_safe_counterexample(test2,variables, exprs, expr_vars); 
 		}
 		return flag;
 }
@@ -464,7 +461,8 @@ bool safe_check(const z3::expr & hypothesis, const z3::expr & safe_vertices, z3:
 bool ex_check(const z3::expr & hypothesis, z3::expr & hypothesis_edge_nodes, 
 const z3::expr & vertices, const z3::expr & vertices_dash, const z3::expr & vertices_player0, 
 const z3::expr & edges, z3::context & context,const z3::expr_vector & all_variables,
- const z3::expr_vector & variables, const z3::expr_vector & variables_dash, const int & n)
+ const z3::expr_vector & variables, const z3::expr_vector & variables_dash, const int & n, z3::expr_vector exprs
+ , z3::expr_vector expr_vars)
  {
 		bool flag = false;
 	 	std::vector<std::vector<int>> new_test1;
@@ -480,14 +478,16 @@ const z3::expr & edges, z3::context & context,const z3::expr_vector & all_variab
 					std::cout << "Ex: " << j << ": " << new_test1[i][j] << std::endl;	
 				}
 			} 
-			create_and_store_existential_counterexample(new_test1);
+			create_and_store_existential_counterexample(new_test1,variables, exprs, expr_vars);
 		}
 		return flag;
 }
 bool uni_check(const z3::expr & hypothesis, z3::expr & hypothesis_edge_nodes, 
 const z3::expr & vertices, const z3::expr & vertices_dash, const z3::expr & vertices_player1, 
 const z3::expr & edges, z3::context & context, const z3::expr_vector & all_variables,
- const z3::expr_vector & variables, const z3::expr_vector & variables_dash, const int n)
+ const z3::expr_vector & variables, const z3::expr_vector & variables_dash,
+  const int n, z3::expr_vector exprs
+ , z3::expr_vector expr_vars)
 {
 	bool flag = false;
 	 std::vector<std::vector<int>> new_test2;
@@ -502,12 +502,12 @@ const z3::expr & edges, z3::context & context, const z3::expr_vector & all_varia
 					std::cout << "Uni: " << j << ": " << new_test2[i][j] << std::endl;	
 				}
 			}
-			create_and_store_universal_counterexample(new_test2);
+			create_and_store_universal_counterexample(new_test2,variables, exprs, expr_vars);
 		
 		}
 		return flag;
 }
-
+/*
 void band_roboter(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr & vertices_player0, z3::expr & vertices_player1, z3::expr & edges,int & n)
 {
 	prep(2);
@@ -657,9 +657,9 @@ void evasion(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr & v
 	safe_vertices = x_1 != x_2 || y_1 != y_2;
 	vertices_player0 = (z == 0);
 	vertices_player1 = (z == 1);
-	/*edges = ((x_1 == x_1_dash +1 || x_1 == x_1_dash || x_1 == x_1_dash -1) && (y_1 == y_1_dash +1 || y_1 == y_1_dash -1 || y_1 == y_1_dash) && (z == 1-z_dash) && (z == 0))
+	edges = ((x_1 == x_1_dash +1 || x_1 == x_1_dash || x_1 == x_1_dash -1) && (y_1 == y_1_dash +1 || y_1 == y_1_dash -1 || y_1 == y_1_dash) && (z == 1-z_dash) && (z == 0))
 	|| ((x_2 == x_2_dash +1 || x_2 == x_2_dash || x_2 == x_2_dash -1) && (y_2 == y_2_dash +1 || y_2 == y_2_dash -1 || y_2 == y_2_dash) && (z == 1-z_dash) && (z == 1));
-	*/
+	
 	edges = 
 	   (x_1 == x_1_dash  && y_1 == y_1_dash && z == 0 && z_dash == 1 && x_2 == x_2_dash && y_2 == y_2_dash) 
 	|| (x_1 == x_1_dash  && y_1 == y_1_dash +1 && z == 0 && z_dash == 1 && x_2 == x_2_dash && y_2 == y_2_dash) 
@@ -712,7 +712,7 @@ void evasion_2(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr &
 // parameter dreieck
 // mehrdimensionale fläche
 
-/* variablen namen
+ variablen namen
  * 
  * 0. Player 0
  * 1. Player 1
@@ -732,7 +732,18 @@ void evasion_2(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr &
  * 2.1 Erhalte JSON von Learner, entschlüssle Variablennamen wie vorher
  * 
  * */
-void learner_teacher_loop(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n)
+void learner_teacher_loop(z3::expr  initial_vertices, 
+z3::expr  safe_vertices, z3::expr  vertices_player0, 
+z3::expr  vertices_player1, z3::expr  edges, int n,
+z3::expr_vector variables_vector, z3::expr_vector variables_dash_vector,
+ z3::expr_vector all_variables_vector,z3::expr_vector exprs,
+	z3::expr_vector exprs_var,std::map<std::string, z3::expr> variables,
+	std::map<std::string, z3::expr> expr_map)
+{
+	
+	
+	//system("PAUSE");
+}
 int main(int argc, char* argv[])
 {
 	z3::expr initial_vertices = ctx.int_val(4);
@@ -740,7 +751,6 @@ int main(int argc, char* argv[])
 	z3::expr vertices_player0 = ctx.int_val(4);
 	z3::expr vertices_player1 = ctx.int_val(4);
 	z3::expr edges = ctx.int_val(4);
-	int n;
 	try{
 		//std::ifstream ifs("data/zweigeraden/input.json");
 		std::cout << argc << argv[1] << std::endl;
@@ -748,8 +758,69 @@ int main(int argc, char* argv[])
 		json j = json::parse(ifs);
 		z3::expr_vector b(ctx);
 		b.push_back(initial_vertices);
-		ParserObject* a = new ParserObject(j);
+		ParserObject* a = new ParserObject( j);
+		Game* game = a->parse_json(ctx,j);
+		z3::expr l = game->get_initial_vertices();
+		std::cout << l << std::endl;
+		z3::expr initial_vertices = game->get_initial_vertices();
+		z3::expr safe_vertices = game->get_safe_vertices();
+		z3::expr vertices_player0 = game->get_player0_vertices();
+		z3::expr vertices_player1 = game->get_player1_vertices();
+		z3::expr edges = game->get_edges();
+		int n = game->get_successors();
+		z3::expr_vector variables_vector = game->get_variables_vector();
+		z3::expr_vector variables_dash_vector = game->get_variables_dash_vector();
+		z3::expr_vector all_variables_vector = game->get_all_variables_vector();
+
+		z3::expr_vector exprs = game->get_exprs();
+		z3::expr_vector exprs_var = game->get_exprs_var();
+		std::map<std::string, z3::expr> variables = game->get_variables();
+		std::map<std::string, z3::expr> expr_map = game->get_expr_map();
+		
 		//prep_from_json(j,initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);
+		try{
+			auto vertices = vertices_player0 || vertices_player1;
+			auto vertices_dash = vertices.substitute(variables_vector,variables_dash_vector);
+			auto hypothesis = ctx.bool_val(true);
+			z3::expr hypothesis_edges_test = hypothesis.substitute(variables_vector,variables_dash_vector);
+			bool flag = true;
+			int safety_counter = 0;
+			while (flag)
+			{
+				flag = false;
+
+				flag = initial_check(hypothesis, initial_vertices, ctx, variables_vector, exprs, exprs_var);
+				if (flag == false){
+					flag = safe_check(hypothesis,safe_vertices,ctx,variables_vector, exprs, exprs_var);
+				}
+				if (flag == false){
+					flag = ex_check(hypothesis, hypothesis_edges_test, vertices, vertices_dash,vertices_player0, edges, ctx, all_variables_vector, variables_vector, variables_dash_vector, n, exprs, exprs_var);
+				}
+				if (flag == false){
+					flag = uni_check(hypothesis, hypothesis_edges_test, vertices, vertices_dash,vertices_player1, edges, ctx, all_variables_vector, variables_vector, variables_dash_vector, n, exprs, exprs_var);
+				}
+				write();
+				std::cout << "Learner wird ausgeführt" << std::endl;
+				system("learner/main data/dillig12.bpl");
+				std::cout << "\n Learner ist terminiert" << std::endl;
+				std::ifstream ifs("data/dillig12.bpl.json");
+				json j = json::parse(ifs);
+				hypothesis = read_json(j, variables, expr_map);
+				std::cout << "\n HYPOTHESIS: " << hypothesis << std::endl;
+				hypothesis_edges_test  = hypothesis.substitute(variables_vector,variables_dash_vector);
+				safety_counter++;
+				if (safety_counter >= 50)
+				{
+					flag = false;
+					std::cout << "Safety counter reached" << std::endl;
+				}
+			}
+			std::cout << safety_counter;
+		}
+		catch(std::runtime_error e)
+		{
+			std::cout << "Runtime error: " << e.what();
+		}
 	}
 		catch (const z3::exception & e)
 	{
@@ -757,6 +828,7 @@ int main(int argc, char* argv[])
 		throw std::runtime_error(e.msg());
 		return EXIT_FAILURE;
 	}
+	
 /*
 	try{
 		//band_roboter(initial_vertices, safe_vertices, vertices_player0, vertices_player1, edges, n);

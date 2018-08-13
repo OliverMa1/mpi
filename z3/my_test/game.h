@@ -16,8 +16,14 @@ class Game {
 	 * 
 	 * */
 	 public:
-	 Game(std::vector<std::string> var_char, std::vector<std::string> var_dash_char, std::vector<std::string> exprs_var_char, std::string smt2lib, int n): ctx(), successors(n)
+	 Game(z3::context & ctx, std::vector<std::string> var_char, std::vector<std::string> var_dash_char, std::vector<std::string> exprs_var_char, std::string smt2lib, int n):  successors(n)
 	 {
+		base = *(new z3::expr_vector(ctx));
+		variables_vector = *(new z3::expr_vector(ctx));
+		variables_dash_vector = *(new z3::expr_vector(ctx));
+		all_variables_vector = *(new z3::expr_vector(ctx));
+		exprs_var = *(new z3::expr_vector(ctx));
+		exprs = *(new z3::expr_vector(ctx));
 		std::cout << "Printing Game... Konstruktor" << smt2lib << " wutface " << std::endl;
 		print(0);
 		auto func_decl_v = z3::func_decl_vector(ctx);
@@ -50,13 +56,17 @@ class Game {
 		base = ctx.parse_string(smt2lib.c_str(), z3::sort_vector(ctx), func_decl_v);		
 		for (int i = 5; (unsigned) i < base.size(); i++)
 		{
-			exprs.push_back(base[i]);
+			std::cout << "Testing... " << base[i].is_eq() << std::endl;
+			auto left = base[i].arg(0);
+			auto right = base[i].arg(1);
+			exprs.push_back(right);
+			expr_map.insert(std::make_pair(exprs_var_char[i-5],right));
 			std::cout << "base test: " << i << " " << base[i] << std::endl;
+			std::cout << "added " << exprs_var_char[i-5] << " to " << right << std::endl;
 		}
 	 }
 	 void print(int i)
 	 {
-		 z3::solver s(ctx);
 		 std::cout << "Printing Game..."  << std::endl;
 	 }
 	 z3::expr get_initial_vertices()
@@ -103,15 +113,24 @@ class Game {
 	 {
 		 return variables;
 	 }
+	 std::map<std::string, z3::expr> get_expr_map()
+	 {
+		 return expr_map;
+	 }
+	 int get_successors()
+	 {
+		 return successors;
+	 }
 	 private:
-		z3::context ctx;
-		z3::expr_vector base = *(new z3::expr_vector(ctx));
-		z3::expr_vector variables_vector = *(new z3::expr_vector(ctx));
-		z3::expr_vector variables_dash_vector = *(new z3::expr_vector(ctx));
-		z3::expr_vector all_variables_vector = *(new z3::expr_vector(ctx));
-		z3::expr_vector exprs_var = *(new z3::expr_vector(ctx));
-		z3::expr_vector exprs = *(new z3::expr_vector(ctx));
+		z3::context ctx1;
+		z3::expr_vector base = *(new z3::expr_vector(ctx1));
+		z3::expr_vector variables_vector = *(new z3::expr_vector(ctx1));
+		z3::expr_vector variables_dash_vector = *(new z3::expr_vector(ctx1));
+		z3::expr_vector all_variables_vector = *(new z3::expr_vector(ctx1));
+		z3::expr_vector exprs_var = *(new z3::expr_vector(ctx1));
+		z3::expr_vector exprs = *(new z3::expr_vector(ctx1));
 		std::map<std::string, z3::expr> variables;
+		std::map<std::string, z3::expr> expr_map;
 		int successors;
 };
 
