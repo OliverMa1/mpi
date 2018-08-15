@@ -11,8 +11,20 @@
 #include "game.h"
 #include "teacher.h"
 #include <nlohmann/json.hpp>
+/** Main file for learner and teacher interaction. 
+ * @file main.cpp
+ * Implements the loop between learner and teacher 
+ * and the communication between them.
+ * @author Oliver Markgraf
+ * @date August 14
+ * */
 using json = nlohmann::json;
-
+/** @brief Counterexample struct to encode counterexamples.
+ * 
+ * This struct is used for a compact representation of counterexamples,
+ * consisting of int vector that represents the data points of an
+ * counterexample and a classification.
+ * */
 struct Counterexample
 {
 	std::vector<int> datapoints;
@@ -53,38 +65,42 @@ struct Counterexample
 	} 
 };
 	std::map<Counterexample,int> counterexample_map;
-	//wrapper objekt für pointer reference wrapper
 	std::map<int,Counterexample> position_map;
 	std::vector<Counterexample> counterexample_vector;
 	std::vector<std::vector<int>> horn_clauses;
 	z3::context ctx;
-	/*std::map<std::string, z3::expr> variables;
-	std::map<std::string, z3::expr> expr_var_map;
-	std::map<std::string, z3::expr> expr_map;
-	std::map<z3::expr, z3::expr> expr_var_to_expr;
-	z3::context ctx;
-	z3::expr_vector variables_vector(ctx);
-	z3::expr_vector exprs(ctx);
-	z3::expr_vector exprs_var(ctx);
-	z3::expr_vector all_variables_vector(ctx);
-	z3::expr_vector variables_dash_vector(ctx);*/
 	
-z3::expr read_json(json j,std::map<std::string, z3::expr> & variables, std::map<std::string, z3::expr> exprs_map)
+/** Method to read a json file given by the learner.
+ * 
+ * Translates the json to a z3::expr.
+ * @param variables - a map to assign variable names to z3::expr variables
+ * @param exprs_map - a map to assign additional expression variables to z3::expr
+ * @param level - the level the tree is at, used to print out the hypothesis
+ * @param tree - string that is a output for the hypothesis
+ * @return Hypothesis from the learner encoded as z3::expr
+ * */
+z3::expr read_json(json j,std::map<std::string, z3::expr> & variables, std::map<std::string, z3::expr> exprs_map, int level, std::string & tree)
 {
-
+	tree += "\n";
+	for (int i = 0; i < level; i++)
+	{
+		tree += "  ";
+	}
 	if(j["attribute"] == "$func")
 	{
-		return read_json(j["children"][0],variables,exprs_map);
+		return read_json(j["children"][0],variables,exprs_map, level,tree);
 	}
 	else if (j["children"].is_null())
 	{
 		int i = j["classification"];
 		if (i == 0)
 		{
+			tree += "true";
 			return ctx.bool_val(true);
 		}
 		else
 		{
+			tree += "false";
 			return ctx.bool_val(false);
 		}
 	}
@@ -101,10 +117,11 @@ z3::expr read_json(json j,std::map<std::string, z3::expr> & variables, std::map<
 				if (it == exprs_map.end()){							
 					std::cout << varname << " nicht gefunden" << std::endl;
 					throw std::runtime_error("Varname nicht gefunden");	
-				}
+				}				
+				tree += (varname + " <= " + std::to_string(j["cut"].get<int>()));
 				z3::expr expr_x = (it -> second);
-				z3::expr left = read_json(j["children"][0],variables,exprs_map);
-				z3::expr right = read_json(j["children"][1],variables,exprs_map);
+				z3::expr left = read_json(j["children"][0],variables,exprs_map,level+1,tree);
+				z3::expr right = read_json(j["children"][1],variables,exprs_map,level+1,tree);
 				z3::expr c = (expr_x <= ctx.int_val(j["cut"].get<int>()));
 				z3::expr b = ite(c,left,right);
 				return b;
@@ -112,9 +129,10 @@ z3::expr read_json(json j,std::map<std::string, z3::expr> & variables, std::map<
 		}
 		else
 		{
+			tree += (varname + " <= " + std::to_string(j["cut"].get<int>()));
 			z3::expr x = (it->second);	
-			z3::expr left = read_json(j["children"][0],variables,exprs_map);
-			z3::expr right = read_json(j["children"][1],variables,exprs_map);
+			z3::expr left = read_json(j["children"][0],variables,exprs_map, level+1,tree);
+			z3::expr right = read_json(j["children"][1],variables,exprs_map, level+1,tree);
 			z3::expr c = x <= ctx.int_val(j["cut"].get<int>());
 			z3::expr b = ite(c,left,right);
 			return b;
@@ -248,7 +266,25 @@ void prep(int  i)
 	myfile.close();
 
 }*/
+/** Method to write attributes in a file for the learner.
+ * @param attribute - given attributes to write
+ */
+void prep(std::vector<std::string> attributes)
+{
+	std::ofstream myfile;
+	myfile.open("data/dillig12.bpl.attributes");
+	myfile << "cat,$func,1\n";
+	for (int j = 0; (unsigned)j < attributes.size(); j++){
+		std::string s = attributes[j];
+		char const *pchar = s.c_str();
+		myfile << "int," << pchar << "\n";
+		z3::expr x = ctx.int_const(pchar);
+	}
+	myfile.close();
 
+}
+/** Method to write counterexamples for the learner to a file.
+ */
 void write()
 {
 	std::ofstream myfile;
@@ -270,7 +306,8 @@ void write()
 		myfile << "\n";
 	}
 }
-
+/** Method to store horn clauses in a global field.
+ */ 
 void store_horn(std::vector<int> horn)
 {
 	std::cout << "entered HORN" << std::endl;
@@ -280,6 +317,13 @@ void store_horn(std::vector<int> horn)
 		}
 		horn_clauses.push_back(horn);
 }
+/** Method to evaluate the additional expressions give by the user.
+ * Adds the evaluation to the counterexample vector.
+ * @param ce - the counterexample vector, used to extend the counterexample
+ * @param variables_vector - variables, used to assign values to the counterexample
+ * @param exprs - vector of the additional expressions
+ * @param expr_vars - variables used in the additional expressions
+ */
 void eval_exprs(std::vector<int> & ce, z3::expr_vector variables_vector, z3::expr_vector exprs, z3::expr_vector expr_vars)
 {
 	for (int i = 0; (unsigned)i < expr_vars.size(); i++)
@@ -310,6 +354,14 @@ void eval_exprs(std::vector<int> & ce, z3::expr_vector variables_vector, z3::exp
 			}
 	}
 }
+/** Method to store counterexamples in a global field.
+ * @param ce - counterexample given as a Counterexample object
+ * @param variables_vector - passed on to evaluate the additional expressions
+ * @param exprs - passed on to evaluate the additional expressions
+ * @param expr_vars - passed on to evaluate the additional expressions
+ * @return returns the position in the field, where the counterexample was written, -1 if 
+ * the method was unsuccessful
+ */
 int store(Counterexample  ce, z3::expr_vector variables_vector, z3::expr_vector exprs, z3::expr_vector expr_vars)
 {
 	for (int i = 0;  (unsigned)i < ce.datapoints.size(); i++)
@@ -363,20 +415,51 @@ int store(Counterexample  ce, z3::expr_vector variables_vector, z3::expr_vector 
 	return position;
 }
 
-
+/** Method to create and store a counterexample for the initial condition.
+ * Sets classification to 0.
+ * @param ce - data points of the counterexample, encoded as int vector
+ * @param variables_vector - variables as z3::expr
+ * @param exprs - additional expressions for the learner
+ * @param expr_vars - additional expression variables for the learner
+ * @return returns the position of the stored counterexample, -1 if it was unsucessful
+ */
 int create_and_store_initial_counterexample(std::vector<int> & ce, z3::expr_vector variables_vector, z3::expr_vector exprs, z3::expr_vector expr_vars)
 {	
 	return store(Counterexample(ce,0),variables_vector, exprs, expr_vars);
 }
-
+/** Method to create and store a counterexample for the safe condition.
+ * Sets classification to 1.
+ * @param ce - data points of the counterexample, encoded as int vector
+ * @param variables_vector - variables as z3::expr
+ * @param exprs - additional expressions for the learner
+ * @param expr_vars - additional expression variables for the learner
+ * @return returns the position of the stored counterexample, -1 if it was unsucessful
+ */
 int create_and_store_safe_counterexample(std::vector<int> & ce, z3::expr_vector variables_vector, z3::expr_vector exprs, z3::expr_vector expr_vars)
 {
 	return store(Counterexample(ce,1),variables_vector, exprs, expr_vars);
 }
+/** Method to create and store a counterexample for the existential or universal condition.
+ * Sets classification to -1.
+ * @param ce - data points of the counterexample, encoded as int vector
+ * @param variables_vector - variables as z3::expr
+ * @param exprs - additional expressions for the learner
+ * @param expr_vars - additional expression variables for the learner
+ * @return returns the position of the stored counterexample, -1 if it was unsucessful
+ */
 int create_and_store_unclassified_counterexample(std::vector<int> & ce, z3::expr_vector variables_vector, z3::expr_vector exprs, z3::expr_vector expr_vars)
 {
 	return store(Counterexample(ce,-1),variables_vector, exprs, expr_vars);
 }
+/** Method to create and store a counterexamples for the existential condition.
+ * calls @see create_and_store_unclassified_counterexample, to create an unclassified
+ * counterexample for each node and its successors.
+ * @param ce - data points of the counterexample with its successors, encoded as vector of int vectors
+ * @param variables_vector - variables as z3::expr
+ * @param exprs - additional expressions for the learner
+ * @param expr_vars - additional expression variables for the learner
+ * @return returns true if the method was successful, false if it was unsucessful
+ */
 bool create_and_store_existential_counterexample(std::vector<std::vector<int>> & ce, z3::expr_vector variables_vector, z3::expr_vector exprs, z3::expr_vector expr_vars)
 {
 	std::vector<int> a;
@@ -399,6 +482,15 @@ bool create_and_store_existential_counterexample(std::vector<std::vector<int>> &
 	}
 	return success;	
 }
+/** Method to create and store a counterexamples for the universal condition.
+ * calls @see create_and_store_unclassified_counterexample, to create an unclassified
+ * counterexample for each node and its successors.
+ * @param ce - data points of the counterexample with its successors, encoded as vector of int vectors
+ * @param variables_vector - variables as z3::expr
+ * @param exprs - additional expressions for the learner
+ * @param expr_vars - additional expression variables for the learner
+ * @return returns true if the method was successful, false if it was unsucessful
+ */
 bool create_and_store_universal_counterexample(std::vector<std::vector<int>>  & ce, 
 z3::expr_vector variables_vector, z3::expr_vector exprs, z3::expr_vector expr_vars)
 {
@@ -418,6 +510,15 @@ z3::expr_vector variables_vector, z3::expr_vector exprs, z3::expr_vector expr_va
 	}
 	return success;		
 }
+/** Method that calls the initial condition check in teacher.h
+ * @param hypothesis - hypothesis about the winning condition
+ * @param initial_vertices - initial vertices of the game graph
+ * @param context - context to evaluate variables
+ * @param variables - z3::expr_vector of the variables used
+ * @param exprs - z3::expr_vector of the additional expressions
+ * @param expr_vars - variables of the additional expressions
+ * @return true if counterexample was found, false if no counterexample was found
+ */
 bool initial_check(const z3::expr & hypothesis, const z3::expr & initial_vertices, z3::context & context,
  const z3::expr_vector & variables, z3::expr_vector exprs, z3::expr_vector expr_vars)
 {
@@ -436,7 +537,15 @@ bool initial_check(const z3::expr & hypothesis, const z3::expr & initial_vertice
 		}
 		return flag;
 }
-
+/** Method that calls the safe condition check in teacher.h
+ * @param hypothesis - hypothesis about the winning condition
+ * @param safe_vertices - safe vertices of the game graph
+ * @param context - context to evaluate variables
+ * @param variables - z3::expr_vector of the variables used
+ * @param exprs - z3::expr_vector of the additional expressions
+ * @param expr_vars - variables of the additional expressions
+ * @return true if counterexample was found, false if no counterexample was found
+ */
 bool safe_check(const z3::expr & hypothesis, const z3::expr & safe_vertices, 
 z3::context & context,const z3::expr_vector & variables, z3::expr_vector exprs, z3::expr_vector expr_vars)
 
@@ -457,7 +566,22 @@ z3::context & context,const z3::expr_vector & variables, z3::expr_vector exprs, 
 		}
 		return flag;
 }
-
+/** Method that calls the existential condition check in teacher.h
+ * @param hypothesis -  hypothesis of a winning set encoded as z3::expr
+ * @param hypothesis_edge_nodes - possible successors of the hypothesis after one step
+ * @param vertices - vertices of the game graph
+ * @param vertices_dash - vertices encoded with the variables in the next step
+ * @param vertices_player0 - vertices that are owned by player0
+ * @param edges - edges of the game graph
+ * @param context - context to evaluate the expressions
+ * @param all_variables - variables and variables_dash combined
+ * @param variables - variables to get the value of each variable assigned
+ * @param variables_dash - variables in the next step 
+ * @param n - maximum number of successors
+ * @param exprs - z3::expr_vector of the additional expressions
+ * @param expr_vars - variables of the additional expressions
+ * @return true if counterexample was found, false if no counterexample was found
+ */
 bool ex_check(const z3::expr & hypothesis, z3::expr & hypothesis_edge_nodes, 
 const z3::expr & vertices, const z3::expr & vertices_dash, const z3::expr & vertices_player0, 
 const z3::expr & edges, z3::context & context,const z3::expr_vector & all_variables,
@@ -482,6 +606,22 @@ const z3::expr & edges, z3::context & context,const z3::expr_vector & all_variab
 		}
 		return flag;
 }
+/** Method that calls the universal condition check in teacher.h
+ * @param hypothesis -  hypothesis of a winning set encoded as z3::expr
+ * @param hypothesis_edge_nodes - possible successors of the hypothesis after one step
+ * @param vertices - vertices of the game graph
+ * @param vertices_dash - vertices encoded with the variables in the next step
+ * @param vertices_player1 - vertices that are owned by player1
+ * @param edges - edges of the game graph
+ * @param context - context to evaluate the expressions
+ * @param all_variables - variables and variables_dash combined
+ * @param variables - variables to get the value of each variable assigned
+ * @param variables_dash - variables in the next step 
+ * @param n - maximum number of successors
+ * @param exprs - z3::expr_vector of the additional expressions
+ * @param expr_vars - variables of the additional expressions
+ * @return true if counterexample was found, false if no counterexample was found
+ */
 bool uni_check(const z3::expr & hypothesis, z3::expr & hypothesis_edge_nodes, 
 const z3::expr & vertices, const z3::expr & vertices_dash, const z3::expr & vertices_player1, 
 const z3::expr & edges, z3::context & context, const z3::expr_vector & all_variables,
@@ -732,18 +872,10 @@ void evasion_2(z3::expr & initial_vertices, z3::expr & safe_vertices, z3::expr &
  * 2.1 Erhalte JSON von Learner, entschlüssle Variablennamen wie vorher
  * 
  * */
-void learner_teacher_loop(z3::expr  initial_vertices, 
-z3::expr  safe_vertices, z3::expr  vertices_player0, 
-z3::expr  vertices_player1, z3::expr  edges, int n,
-z3::expr_vector variables_vector, z3::expr_vector variables_dash_vector,
- z3::expr_vector all_variables_vector,z3::expr_vector exprs,
-	z3::expr_vector exprs_var,std::map<std::string, z3::expr> variables,
-	std::map<std::string, z3::expr> expr_map)
-{
-	
-	
-	//system("PAUSE");
-}
+/** Main method that encodes the interaction between teacher and learner.
+ * @param argc - number of inputs, should be 2
+ * @param argv - argv[1], should be the path to the input file
+ */
 int main(int argc, char* argv[])
 {
 	z3::expr initial_vertices = ctx.int_val(4);
@@ -758,10 +890,9 @@ int main(int argc, char* argv[])
 		json j = json::parse(ifs);
 		z3::expr_vector b(ctx);
 		b.push_back(initial_vertices);
-		ParserObject* a = new ParserObject( j);
+		ParserObject* a = new ParserObject();
 		Game* game = a->parse_json(ctx,j);
-		z3::expr l = game->get_initial_vertices();
-		std::cout << l << std::endl;
+		prep(game->get_attributes());
 		z3::expr initial_vertices = game->get_initial_vertices();
 		z3::expr safe_vertices = game->get_safe_vertices();
 		z3::expr vertices_player0 = game->get_player0_vertices();
@@ -805,8 +936,9 @@ int main(int argc, char* argv[])
 				std::cout << "\n Learner ist terminiert" << std::endl;
 				std::ifstream ifs("data/dillig12.bpl.json");
 				json j = json::parse(ifs);
-				hypothesis = read_json(j, variables, expr_map);
-				std::cout << "\n HYPOTHESIS: " << hypothesis << std::endl;
+				std::string tree = "";
+				hypothesis = read_json(j, variables, expr_map,0, tree);
+				std::cout << "Hypothesis: \n" << tree << std::endl;
 				hypothesis_edges_test  = hypothesis.substitute(variables_vector,variables_dash_vector);
 				safety_counter++;
 				if (safety_counter >= 50)

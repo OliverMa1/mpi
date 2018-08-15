@@ -3,23 +3,25 @@
 #include <tuple>
 #include <typeinfo>
 #include "z3++.h"
-
-void check(const z3::expr & e, z3::context & ctx)
-{
-	auto solver = z3::solver(ctx);
-	solver.add(e);
-	if (solver.check() == z3::sat){
-		std::cout << e << " is satisfiable" << "\n" << "a model is: " << solver.get_model() << std::endl;  
-	}
-	else {
-		std::cout << e << " is unsatisfiable" << std::endl;
-	}
-}
-
+/** Header for the teacher.
+ * @file teacher.h
+ * 
+ * This file has methods to implement a teacher such as check conditions that 
+ * are required to hold for a winning set.
+ * @author Oliver Markgraf
+ * @date August 14
+ * */
+/** Checks the initial condition for a hypothesis of a safety game.
+ * I ⊆ W
+ * @param hypothesis - hypothesis about the winning set W
+ * @param initial_vertices - initial vertices encodeded as z3::expr
+ * @param context - context to evaluate the expressions
+ * @param variables - variables to get the value of each variable assigned
+ * @return The counterexample, encoded as a int vector.
+ * */
 std::vector<int> check_initial_condition(const z3::expr & hypothesis, const z3::expr & initial_vertices, z3::context & context,const z3::expr_vector & variables)
 {
 
-	// initial_vertices subset hypothesis
 	std::vector<int> result;
 	auto solver = z3::solver(context);
 	z3::expr check = implies(initial_vertices,hypothesis);
@@ -33,7 +35,6 @@ std::vector<int> check_initial_condition(const z3::expr & hypothesis, const z3::
 		for (unsigned i = 0; i < m.size(); i++){
 			z3::func_decl v = m[i];	
 			sol.push_back(m.get_const_interp(v));
-			//std::cout<< "m[i]: " << m[i] << "v.arity()" << v.arity() << v.name() << " = " << m.get_const_interp(v) << std::endl;
 		}
 		for(int i = 0; (unsigned)i < variables.size(); i++){
 			int j = 0;
@@ -44,6 +45,14 @@ std::vector<int> check_initial_condition(const z3::expr & hypothesis, const z3::
 	}
 	return result;
 }
+/** Checks the initial condition for a hypothesis of a safety game.
+ * W ⊆ F
+ * @param hypothesis - hypothesis about the winning set W
+ * @param safe_vertices - safe vertices encodeded as z3::expr
+ * @param context - context to evaluate the expressions
+ * @param variables - variables to get the value of each variable assigned
+ * @return The counterexample, encoded as a int vector.
+ * */
 std::vector<int> check_safe_condition(const z3::expr & hypothesis, const z3::expr & safe_vertices, z3::context & context, const z3::expr_vector & variables)
 {	
 
@@ -76,8 +85,21 @@ std::vector<int> check_safe_condition(const z3::expr & hypothesis, const z3::exp
 	std::cout << "test2: " << result.size() << " " << variables.size() << std::endl;
 	return result;
 }
-
-std::vector<std::vector<int>> build_counterexample(const z3::expr & counterexample,const std::vector<int> & right, const z3::expr & edges, z3::context & context, const z3::expr_vector & variables, const z3::expr_vector & variables_dash, const z3::expr_vector & all_variables, const int n)
+/** Method to build a transform a counterexample from z3::expr to a vector
+ * of int vectors. Used for existential and universal counterexamples.
+ * 
+ * @param counterexample - counterexample of the hypothesis encoded as z3::expr
+ * @param start - This is the counterexample node.
+ * @param edges - edges of the game graph
+ * @param context - context to evaluate the expressions
+ * @param variables - variables to get the value of each variable assigned
+ * @param variables_dash - variables in the next step 
+ * @param all_variables - variables and variables_dash combined
+ * @param n - maximum number of successors
+ * @return Returns a counterexample as a horn clause. First vector is left side,
+ * rest of the vectors are the right side.
+ * */
+std::vector<std::vector<int>> build_counterexample(const z3::expr & counterexample,const std::vector<int> & start, const z3::expr & edges, z3::context & context, const z3::expr_vector & variables, const z3::expr_vector & variables_dash, const z3::expr_vector & all_variables, const int n)
 {
 	std::cout << "build ce " << std::endl;
 	for (int i = 0; (unsigned)i < variables.size(); i++)
@@ -88,7 +110,7 @@ std::vector<std::vector<int>> build_counterexample(const z3::expr & counterexamp
 	std::vector<std::vector<int>> result;
 	auto solver = z3::solver(context);
 	solver.add(counterexample);
-	result.push_back(right);
+	result.push_back(start);
 	for(int i = 0; i < n; i++){
 		if (solver.check() == z3::sat){
 			auto m = solver.get_model();
@@ -119,7 +141,22 @@ std::vector<std::vector<int>> build_counterexample(const z3::expr & counterexamp
 	}
 	return result;
 }
-
+/** Method to find a existential counterexample in a hypothesis.
+ * 
+ * @param hypothesis -  hypothesis of a winning set encoded as z3::expr
+ * @param hypothesis_edge_nodes - possible successors of the hypothesis after one step
+ * @param vertices - vertices of the game graph
+ * @param vertices_dash - vertices encoded with the variables in the next step
+ * @param vertices_player0 - vertices that are owned by player0
+ * @param edges - edges of the game graph
+ * @param context - context to evaluate the expressions
+ * @param all_variables - variables and variables_dash combined
+ * @param variables - variables to get the value of each variable assigned
+ * @param variables_dash - variables in the next step 
+ * @param n - maximum number of successors
+ * @return Returns a counterexample as a horn clause. First vector is left side,
+ * rest of the vectors are the right side.
+ * */
 std::vector<std::vector<int>> existential_check(const z3::expr & hypothesis, z3::expr & hypothesis_edge_nodes, 
 const z3::expr & vertices, const z3::expr & vertices_dash, const z3::expr & vertices_player0, 
 const z3::expr & edges, z3::context & context,const z3::expr_vector & all_variables,
@@ -155,49 +192,22 @@ const z3::expr & edges, z3::context & context,const z3::expr_vector & all_variab
 		return result;
 	}
 }
-/*std::vector<std::tuple<std::vector<int>,std::vector<int>>> build_counterexample_universal(const z3::expr & counterexample, const std::vector<int> & right, const z3::expr & edges, z3::context & context, const z3::expr_vector variables, const z3::expr_vector variables_dash, const z3::expr_vector all_variables, const int n)
-{
-	// TODO : male dir den graphen auf und guck ob das stimmt was da raus kommt. danach existential
-	auto solver = z3::solver(context);
-	solver.add(counterexample);
-	std::vector<std::tuple<std::vector<int>,std::vector<int>>> result;
-	for(int j = 0; j < n; j++){
-		if (solver.check() == z3::sat){
-			auto m = solver.get_model();
-			z3::expr_vector sol(context);
-			for (unsigned i = 0; i < m.size(); i++){
-				z3::func_decl v = m[i];	
-				sol.push_back(m.get_const_interp(v));			
-			}
-			std::cout << "Model:\n" << m << "\n";
-			z3::expr test = context.bool_val(true);
-			std::vector<int> left;
-			for(int i = 0; i < variables_dash.size(); i++){
-				std::cout << variables_dash[i] << std::endl;
-				test =  (test) && (variables_dash[i] == m.eval(variables_dash[i]));
-				int j;
-				Z3_get_numeral_int(context, m.eval(variables_dash[i]), &j);
-				std::cout << " teste hier was du machst BUILD " << j <<std::endl;
-				left.push_back(j);
-			}
-			std::tuple<std::vector<int>,std::vector<int>> counterexample(left,right);
-			result.push_back(counterexample);		
-			for(int i = 0; i < left.size(); i++){
-				std::cout << " teste hier was du machst LINKS COUNTEREXAMPLE" << std::get<0>(counterexample)[i] <<std::endl;
-				std::cout << " teste hier was du machst RECHTS COUNTEREXAMPLE" << std::get<1>(counterexample)[i] <<std::endl;
-
-			}
-			solver.add(!test);
-			std::cout << "test:\n" << test << std::endl;
-			// add counterexample mit successor
-		}
-		else {
-			std::cout << "all successors found" << std::endl;
-			break;
-		}
-	}
-	return result;
-}*/
+/** Method to find a existential counterexample in a hypothesis.
+ * 
+ * @param hypothesis -  hypothesis of a winning set encoded as z3::expr
+ * @param hypothesis_edge_nodes - possible successors of the hypothesis after one step
+ * @param vertices - vertices of the game graph
+ * @param vertices_dash - vertices encoded with the variables in the next step
+ * @param vertices_player1 - vertices that are owned by player1
+ * @param edges - edges of the game graph
+ * @param context - context to evaluate the expressions
+ * @param all_variables - variables and variables_dash combined
+ * @param variables - variables to get the value of each variable assigned
+ * @param variables_dash - variables in the next step 
+ * @param n - maximum number of successors
+ * @return Returns a counterexample as a horn clause. First vector is left side,
+ * rest of the vectors are the right side.
+ * */
 std::vector<std::vector<int>> universal_check(const z3::expr & hypothesis, z3::expr & hypothesis_edge_nodes, 
 const z3::expr & vertices, const z3::expr & vertices_dash, const z3::expr & vertices_player1, 
 const z3::expr & edges, z3::context & context, const z3::expr_vector & all_variables,
@@ -227,7 +237,6 @@ const z3::expr & edges, z3::context & context, const z3::expr_vector & all_varia
 			}
 
 			return build_counterexample(test && edges, tmp, edges, context, variables,variables_dash, all_variables, n);
-			//solver.add(!test);
 	}	
 	else {
 		std::cout << "Hypothesis holds for the universal condition" << std::endl;
@@ -235,22 +244,6 @@ const z3::expr & edges, z3::context & context, const z3::expr_vector & all_varia
 	}
 }
 
-void prove(z3::expr conjecture) {
-    z3::context & c = conjecture.ctx();
-    auto s = z3::solver(c);
-    s.add(!conjecture);
-    std::cout << "conjecture:\n" << conjecture << "\n";
-    if (s.check() == z3::unsat) {
-        std::cout << "proved" << "\n";
-    }
-    else {
-        std::cout << "failed to prove" << "\n";
-        std::cout << "counterexample for safe condition!:\n" << s.get_model() << "\n";
-    }
-}
 
-void test(){
-		std::cout << "testing... the compiling" << std::endl;
-}
 
 

@@ -7,16 +7,25 @@
 #include "game.h"
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
-	
+/** Header for the parser object.
+ * @file parserObject.h
+ * 
+ * Parser for creating game objects. Can parse json files and create a game object
+ * @see parse_json. 
+ * @author Oliver Markgraf
+ * @date August 14
+ * */
 class ParserObject {
-	/* was brauchen wir?
-	 * 1. expr_vector für alle eingaben, init, safe,player0, player1 edges, successors
-	 * 2. variables, variables_dash, all_variables, exprs, exprs_var
-	 * vermutlich auch context, return game object????
+	/**	Default constructor
 	 * */
-	public :ParserObject(json& js)//, z3::expr_vector & variables, z3::expr_vector & exprs, int successors)
+	public :ParserObject()
 	{
 	}
+	/** Method to create a Game object from a json file. 
+	 * @param ctx - context to pass on for the game.
+	 * @param j - json file to create a game
+	 * 
+	 * */
 	Game* parse_json(z3::context & ctx, json j)
 	{
 		std::cout << j << std::endl;

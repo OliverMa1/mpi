@@ -5,27 +5,40 @@
 #include <tuple>
 #include <typeinfo>
 #include "z3++.h"
-
+/** Header for the game object.
+ * @file game.h
+ * 
+ * The game object is used to encode a safety game. It stores initial vertices,
+ * safe vertices, player0 vertices, player1 vertices, edges, variables and additional expressions 
+ * for the learner.
+ * @author Oliver Markgraf
+ * @date August 14
+ * */
 class Game {
-	// reicht struct ??? vermutlich ja
-	/* 1. bekommt init, safe, player0, player1, edges, successors speichere sämtliche attribute hier
-	 * 2. bekommt alle art von variablen
-	 * 3. Erstelle game mithilfe von parserObject
-	 * 4. nutze parameter vom game object für teacher learner interaktion
-	 * 5. zusätzliche exprs bei main???, speichere diese aber hier i guess
-	 * 
-	 * */
+
 	 public:
+	 /**
+	  * Constructor for a game object, stores all the data in z3::expr
+	  * and z3::expr_vector. Ensures that correct amount of variables are given.
+	  * @param ctx - context to create the variables and make sure they all have the same context
+	  * @param var_char - variables names, stored in a string vector
+	  * @param var_dash_char - variables names for the next step, stored in a string vector
+	  * @param exprs_var_char - expression variables names, stored in a string vector for the learner
+	  * @param smt2lib - string that encodes the game with assertions
+	  * @param n - number of maximal successors of each node
+	  * */ 
 	 Game(z3::context & ctx, std::vector<std::string> var_char, std::vector<std::string> var_dash_char, std::vector<std::string> exprs_var_char, std::string smt2lib, int n):  successors(n)
 	 {
+		if (var_char.size() != var_dash_char.size())
+		{
+			 throw std::runtime_error("Var Size != Var_Dash Size");
+		}
 		base = *(new z3::expr_vector(ctx));
 		variables_vector = *(new z3::expr_vector(ctx));
 		variables_dash_vector = *(new z3::expr_vector(ctx));
 		all_variables_vector = *(new z3::expr_vector(ctx));
 		exprs_var = *(new z3::expr_vector(ctx));
 		exprs = *(new z3::expr_vector(ctx));
-		std::cout << "Printing Game... Konstruktor" << smt2lib << " wutface " << std::endl;
-		print(0);
 		auto func_decl_v = z3::func_decl_vector(ctx);
 		for (int i = 0; (unsigned)i < var_char.size(); i ++)
 		{
@@ -36,6 +49,7 @@ class Game {
 			variables.insert(std::make_pair(var_char[i],x));
 			auto a_decl = ctx.function(ctx.str_symbol(var_char[i].c_str()), z3::sort_vector(ctx), ctx.int_sort());
 			func_decl_v.push_back(a_decl);
+			attributes.push_back(var_char[i]);
 		}
 		for (int i = 0; (unsigned)i < var_dash_char.size(); i ++)
 		{
@@ -51,6 +65,7 @@ class Game {
 			std::cout << "added to expr_var: " << exprs_var_char[i] << std::endl;
 			z3::expr x = ctx.int_const(exprs_var_char[i].c_str());
 			exprs_var.push_back(x);
+			attributes.push_back(exprs_var_char[i]);
 			//expr_var_map.insert(std::make_pair(j["exprs"][i].get<std::string>(),x));
 		}
 		base = ctx.parse_string(smt2lib.c_str(), z3::sort_vector(ctx), func_decl_v);		
@@ -64,11 +79,12 @@ class Game {
 			std::cout << "base test: " << i << " " << base[i] << std::endl;
 			std::cout << "added " << exprs_var_char[i-5] << " to " << right << std::endl;
 		}
+		if (exprs_var.size() != exprs.size())
+		{
+			throw std::runtime_error("Unequal additonal Expr and Expr names!");
+		}
 	 }
-	 void print(int i)
-	 {
-		 std::cout << "Printing Game..."  << std::endl;
-	 }
+
 	 z3::expr get_initial_vertices()
 	 {
 		 return base[0];
@@ -121,6 +137,10 @@ class Game {
 	 {
 		 return successors;
 	 }
+	 std::vector<std::string> get_attributes()
+	 {
+		 return attributes;
+	 }
 	 private:
 		z3::context ctx1;
 		z3::expr_vector base = *(new z3::expr_vector(ctx1));
@@ -132,6 +152,7 @@ class Game {
 		std::map<std::string, z3::expr> variables;
 		std::map<std::string, z3::expr> expr_map;
 		int successors;
+		std::vector<std::string> attributes;
 };
 
 #endif
