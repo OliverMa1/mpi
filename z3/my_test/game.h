@@ -72,8 +72,9 @@ class Game {
 		for (int i = 5; (unsigned) i < base.size(); i++)
 		{
 			std::cout << "Testing... " << base[i].is_eq() << std::endl;
-			auto left = base[i].arg(0);
-			auto right = base[i].arg(1);
+			// test int expr, int const
+			auto& left = base[i].arg(0);
+			auto& right = base[i].arg(1);
 			exprs.push_back(right);
 			expr_map.insert(std::make_pair(exprs_var_char[i-5],right));
 			std::cout << "base test: " << i << " " << base[i] << std::endl;

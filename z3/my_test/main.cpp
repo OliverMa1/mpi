@@ -951,12 +951,12 @@ int main(int argc, char* argv[])
 		}
 		catch(std::runtime_error e)
 		{
-			std::cout << "Runtime error: " << e.what();
+			throw std::runtime_error(e.what());
+			return EXIT_FAILURE;
 		}
 	}
 		catch (const z3::exception & e)
 	{
-		std::cout << "oh shit" << std::endl;
 		throw std::runtime_error(e.msg());
 		return EXIT_FAILURE;
 	}
