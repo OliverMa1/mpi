@@ -9,10 +9,11 @@
 {\ttfamily \#include $<$iterator$>$}\newline
 {\ttfamily \#include $<$typeinfo$>$}\newline
 {\ttfamily \#include \char`\"{}z3++.\+h\char`\"{}}\newline
-{\ttfamily \#include \char`\"{}parser\+Object.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}parser.\+h\char`\"{}}\newline
 {\ttfamily \#include \char`\"{}game.\+h\char`\"{}}\newline
 {\ttfamily \#include \char`\"{}teacher.\+h\char`\"{}}\newline
 {\ttfamily \#include $<$nlohmann/json.\+hpp$>$}\newline
+{\ttfamily \#include $<$chrono$>$}\newline
 Include dependency graph for main.\+cpp\+:
 % FIG 0
 \subsection*{Classes}
@@ -58,6 +59,8 @@ bool \hyperlink{main_8cpp_ad45fe8e4674c50c8aff7d18a1d9763bc}{safe\+\_\+check} (c
 bool \hyperlink{main_8cpp_aaeec970a39b17fd39476b2f8bc04a07b}{ex\+\_\+check} (const z3\+::expr \&hypothesis, z3\+::expr \&hypothesis\+\_\+edge\+\_\+nodes, const z3\+::expr \&vertices, const z3\+::expr \&vertices\+\_\+dash, const z3\+::expr \&vertices\+\_\+player0, const z3\+::expr \&edges, z3\+::context \&context, const z3\+::expr\+\_\+vector \&all\+\_\+variables, const z3\+::expr\+\_\+vector \&variables, const z3\+::expr\+\_\+vector \&variables\+\_\+dash, const int \&n, z3\+::expr\+\_\+vector exprs, z3\+::expr\+\_\+vector expr\+\_\+vars)
 \item 
 bool \hyperlink{main_8cpp_a0fc2a64409017339dd4066972f105717}{uni\+\_\+check} (const z3\+::expr \&hypothesis, z3\+::expr \&hypothesis\+\_\+edge\+\_\+nodes, const z3\+::expr \&vertices, const z3\+::expr \&vertices\+\_\+dash, const z3\+::expr \&vertices\+\_\+player1, const z3\+::expr \&edges, z3\+::context \&context, const z3\+::expr\+\_\+vector \&all\+\_\+variables, const z3\+::expr\+\_\+vector \&variables, const z3\+::expr\+\_\+vector \&variables\+\_\+dash, const int n, z3\+::expr\+\_\+vector exprs, z3\+::expr\+\_\+vector expr\+\_\+vars)
+\item 
+void \hyperlink{main_8cpp_ae902f6a6c09b1aff478c07db0a91ce0d}{generate\+\_\+stats} (std\+::string \&result, \hyperlink{classGame}{Game} $\ast$\&game, int steps, std\+::vector$<$ double $>$ stats)
 \item 
 int \hyperlink{main_8cpp_a0ddf1224851353fc92bfbff6f499fa97}{main} (int argc, char $\ast$argv\mbox{[}$\,$\mbox{]})
 \end{DoxyCompactItemize}
@@ -254,6 +257,21 @@ Method that calls the existential condition check in \hyperlink{teacher_8h}{teac
 \begin{DoxyReturn}{Returns}
 true if counterexample was found, false if no counterexample was found 
 \end{DoxyReturn}
+\mbox{\Hypertarget{main_8cpp_ae902f6a6c09b1aff478c07db0a91ce0d}\label{main_8cpp_ae902f6a6c09b1aff478c07db0a91ce0d}} 
+\index{main.\+cpp@{main.\+cpp}!generate\+\_\+stats@{generate\+\_\+stats}}
+\index{generate\+\_\+stats@{generate\+\_\+stats}!main.\+cpp@{main.\+cpp}}
+\subsubsection{\texorpdfstring{generate\+\_\+stats()}{generate\_stats()}}
+{\footnotesize\ttfamily void generate\+\_\+stats (\begin{DoxyParamCaption}\item[{std\+::string \&}]{result,  }\item[{\hyperlink{classGame}{Game} $\ast$\&}]{game,  }\item[{int}]{steps,  }\item[{std\+::vector$<$ double $>$}]{stats }\end{DoxyParamCaption})}
+
+Method to generate overall stats of the safety game learning process. 
+\begin{DoxyParams}{Parameters}
+{\em result} & -\/ string to pass on the result and print it out later \\
+\hline
+{\em game} & -\/ game to access stats \\
+\hline
+{\em stats} & -\/ time statistics \\
+\hline
+\end{DoxyParams}
 \mbox{\Hypertarget{main_8cpp_acb722a21249a91a71edbd3a5aba29e20}\label{main_8cpp_acb722a21249a91a71edbd3a5aba29e20}} 
 \index{main.\+cpp@{main.\+cpp}!initial\+\_\+check@{initial\+\_\+check}}
 \index{initial\+\_\+check@{initial\+\_\+check}!main.\+cpp@{main.\+cpp}}

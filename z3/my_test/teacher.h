@@ -27,7 +27,6 @@ std::vector<int> check_initial_condition(const z3::expr & hypothesis, const z3::
 	z3::expr check = implies(initial_vertices,hypothesis);
 	solver.add(!check);
 	if (solver.check() == z3::unsat) {
-		std::cout << "Hypothesis holds for initial condition!" << std::endl;
 	}
 	else {
 		auto m = solver.get_model();
@@ -41,7 +40,6 @@ std::vector<int> check_initial_condition(const z3::expr & hypothesis, const z3::
 			Z3_get_numeral_int(context, m.eval(variables[i]), &j);
 			result.push_back(j);
 		}
-		std::cout << "counterexample for initial condition!:\n" << solver.get_model() << "\n";
 	}
 	return result;
 }
@@ -56,33 +54,27 @@ std::vector<int> check_initial_condition(const z3::expr & hypothesis, const z3::
 std::vector<int> check_safe_condition(const z3::expr & hypothesis, const z3::expr & safe_vertices, z3::context & context, const z3::expr_vector & variables)
 {	
 
-	// wenn hypothesis subset safe_vertices 
 	std::vector<int> result;
 	auto solver = z3::solver(context);
 	z3::expr check = implies(hypothesis, safe_vertices);
 	solver.add(!check);
 	if (solver.check() == z3::unsat) {
-		std::cout << "Hypothesis holds for safe condition!!" << std::endl;
 	}
 	else {
 		auto m = solver.get_model();
 		z3::expr_vector sol(context);
 		for (unsigned i = 0; i < m.size(); i++){
 			z3::func_decl v = m[i];	
-			std::cout << "func-decl i == "  << i << " " << v << std::endl;
 			sol.push_back(m.get_const_interp(v));
 			
 		}
 		for(int i = 0; (unsigned)i < variables.size(); i++){
 			int j = 0;
 			Z3_get_numeral_int(context, m.eval(variables[i]), &j);
-			std::cout << "test: " << j << std::endl;
 			result.push_back(j);
 		}
 
-		std::cout << "counterexample for safe condition!:\n" << solver.get_model() << "\n";
 	}
-	std::cout << "test2: " << result.size() << " " << variables.size() << std::endl;
 	return result;
 }
 /** Method to build a transform a counterexample from z3::expr to a vector
@@ -101,12 +93,7 @@ std::vector<int> check_safe_condition(const z3::expr & hypothesis, const z3::exp
  * */
 std::vector<std::vector<int>> build_counterexample(const z3::expr & counterexample,const std::vector<int> & start, const z3::expr & edges, z3::context & context, const z3::expr_vector & variables, const z3::expr_vector & variables_dash, const z3::expr_vector & all_variables, const int n)
 {
-	std::cout << "build ce " << std::endl;
-	for (int i = 0; (unsigned)i < variables.size(); i++)
-	{
-		std::cout << "variables[" << i << "] :" << variables[i] << " variables_dash[" << i << "] :" << variables_dash[i] << std::endl;
-	}
-	// pushe alle vektoren in result, bis n erreicht, dann den mitgegeben zusätzlich
+
 	std::vector<std::vector<int>> result;
 	auto solver = z3::solver(context);
 	solver.add(counterexample);
@@ -114,7 +101,6 @@ std::vector<std::vector<int>> build_counterexample(const z3::expr & counterexamp
 	for(int i = 0; i < n; i++){
 		if (solver.check() == z3::sat){
 			auto m = solver.get_model();
-			//std::cout << "MODEL : " << m << std::endl;
 			z3::expr_vector sol(context);
 			for (unsigned l = 0; (unsigned)l < m.size(); l++){
 				z3::func_decl v = m[l];	
@@ -132,10 +118,8 @@ std::vector<std::vector<int>> build_counterexample(const z3::expr & counterexamp
 			}
 			result.push_back(tmp);
 			solver.add(!test);
-			// add counterexample mit successor
 		}
 		else {
-			//std::cout << "all successors found" << std::endl;
 			break;
 		}
 	}
@@ -169,7 +153,6 @@ const z3::expr & edges, z3::context & context,const z3::expr_vector & all_variab
 
 	solver.add(nodes_in_V0_and_W_without_successor_in_W);
 	if (solver.check()== z3::sat){
-			std::cout << "counterexample for existential condition!:\n" << solver.get_model() << "\n";
 			auto m = solver.get_model();
 			z3::expr_vector sol(context);
 			for (unsigned i = 0; i < m.size(); i++){
@@ -185,10 +168,8 @@ const z3::expr & edges, z3::context & context,const z3::expr_vector & all_variab
 				tmp.push_back(j);
 			}
 			return build_counterexample(test && edges, tmp, edges, context, variables,variables_dash, all_variables, n);
-			//solver.add(!test);
 	}	
 	else {
-		std::cout << "Hypothesis holds for the existential condition" << std::endl;
 		return result;
 	}
 }
@@ -226,7 +207,6 @@ const z3::expr & edges, z3::context & context, const z3::expr_vector & all_varia
 				z3::func_decl v = m[i];	
 				sol.push_back(m.get_const_interp(v));			
 				}
-			std::cout << "counterexample for universal condition!:\n" << solver.get_model() << "\n";
 			z3::expr test = context.bool_val(true);
 			std::vector<int> tmp;
 			for(int i = 0; (unsigned)i < variables.size(); i++){
@@ -239,7 +219,6 @@ const z3::expr & edges, z3::context & context, const z3::expr_vector & all_varia
 			return build_counterexample(test && edges, tmp, edges, context, variables,variables_dash, all_variables, n);
 	}	
 	else {
-		std::cout << "Hypothesis holds for the universal condition" << std::endl;
 		return result;
 	}
 }

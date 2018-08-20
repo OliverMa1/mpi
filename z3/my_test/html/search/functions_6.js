@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['parse_5fjson',['parse_json',['../classParserObject.html#af964d36a89d238976ed3df5669f32d06',1,'ParserObject']]],
-  ['parserobject',['ParserObject',['../classParserObject.html#acc81aa99c0d4e10fb2453aee333b115a',1,'ParserObject']]],
+  ['parse_5fjson',['parse_json',['../classParser.html#af5d6b54b01350e7981b01e8d122c8e51',1,'Parser']]],
+  ['parser',['Parser',['../classParser.html#a12234f6cd36b61af4b50c94a179422c1',1,'Parser']]],
   ['prep',['prep',['../main_8cpp.html#aee98e03c5940cec698176d887fa55714',1,'main.cpp']]]
 ];

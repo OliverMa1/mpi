@@ -42,7 +42,6 @@ class Game {
 		auto func_decl_v = z3::func_decl_vector(ctx);
 		for (int i = 0; (unsigned)i < var_char.size(); i ++)
 		{
-			std::cout << "var: " << i << var_char[i] << std::endl;
 			z3::expr x = ctx.int_const(var_char[i].c_str());
 			variables_vector.push_back(x);
 			all_variables_vector.push_back(x);
@@ -53,7 +52,6 @@ class Game {
 		}
 		for (int i = 0; (unsigned)i < var_dash_char.size(); i ++)
 		{
-			std::cout << "var_dash: " << i << var_dash_char[i] << std::endl;
 			z3::expr x = ctx.int_const(var_dash_char[i].c_str());
 			variables_dash_vector.push_back(x);
 			all_variables_vector.push_back(x);
@@ -62,19 +60,26 @@ class Game {
 		}
 		for (int i = 0; (unsigned)i < exprs_var_char.size(); i ++)
 		{
-			std::cout << "added to expr_var: " << exprs_var_char[i] << std::endl;
 			z3::expr x = ctx.int_const(exprs_var_char[i].c_str());
 			exprs_var.push_back(x);
 			attributes.push_back(exprs_var_char[i]);
-			//expr_var_map.insert(std::make_pair(j["exprs"][i].get<std::string>(),x));
 		}
 		base = ctx.parse_string(smt2lib.c_str(), z3::sort_vector(ctx), func_decl_v);		
 		for (int i = 5; (unsigned) i < base.size(); i++)
 		{
-			std::cout << "Testing... " << base[i].is_eq() << std::endl;
-			// test int expr, int const
-			auto& left = base[i].arg(0);
-			auto& right = base[i].arg(1);
+			if(!base[i].is_eq()){
+				throw std::runtime_error("Wrong format for additional expr! Is not an equality");
+			}
+			const auto& left = base[i].arg(0);
+			const auto& right = base[i].arg(1);
+			if (!left.is_numeral())
+			{
+				throw std::runtime_error("Wrong format for additional expr! Left side is not a number");
+			}
+			if (!right.is_int())
+			{
+				throw std::runtime_error("Wrong format for additional expr! Right side is not an integer expression");
+			}
 			exprs.push_back(right);
 			expr_map.insert(std::make_pair(exprs_var_char[i-5],right));
 			std::cout << "base test: " << i << " " << base[i] << std::endl;

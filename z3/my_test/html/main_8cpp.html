@@ -76,10 +76,11 @@ $(function() {
 <code>#include &lt;iterator&gt;</code><br />
 <code>#include &lt;typeinfo&gt;</code><br />
 <code>#include &quot;z3++.h&quot;</code><br />
-<code>#include &quot;<a class="el" href="parserObject_8h_source.html">parserObject.h</a>&quot;</code><br />
+<code>#include &quot;parser.h&quot;</code><br />
 <code>#include &quot;<a class="el" href="game_8h_source.html">game.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="teacher_8h_source.html">teacher.h</a>&quot;</code><br />
 <code>#include &lt;nlohmann/json.hpp&gt;</code><br />
+<code>#include &lt;chrono&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for main.cpp:</div>
 <div class="dyncontent">
@@ -131,6 +132,8 @@ Functions</h2></td></tr>
 <tr class="separator:aaeec970a39b17fd39476b2f8bc04a07b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0fc2a64409017339dd4066972f105717"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a0fc2a64409017339dd4066972f105717">uni_check</a> (const z3::expr &amp;hypothesis, z3::expr &amp;hypothesis_edge_nodes, const z3::expr &amp;vertices, const z3::expr &amp;vertices_dash, const z3::expr &amp;vertices_player1, const z3::expr &amp;edges, z3::context &amp;context, const z3::expr_vector &amp;all_variables, const z3::expr_vector &amp;variables, const z3::expr_vector &amp;variables_dash, const int n, z3::expr_vector exprs, z3::expr_vector expr_vars)</td></tr>
 <tr class="separator:a0fc2a64409017339dd4066972f105717"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae902f6a6c09b1aff478c07db0a91ce0d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#ae902f6a6c09b1aff478c07db0a91ce0d">generate_stats</a> (std::string &amp;result, <a class="el" href="classGame.html">Game</a> *&amp;game, int steps, std::vector&lt; double &gt; stats)</td></tr>
+<tr class="separator:ae902f6a6c09b1aff478c07db0a91ce0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0ddf1224851353fc92bfbff6f499fa97"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97">main</a> (int argc, char *argv[])</td></tr>
 <tr class="separator:a0ddf1224851353fc92bfbff6f499fa97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -568,6 +571,54 @@ z3::context&#160;</td><td class="memItemRight" valign="bottom"><b>ctx</b></td></
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if counterexample was found, false if no counterexample was found </dd></dl>
+
+</div>
+</div>
+<a id="ae902f6a6c09b1aff478c07db0a91ce0d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae902f6a6c09b1aff478c07db0a91ce0d">&#9670;&nbsp;</a></span>generate_stats()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void generate_stats </td>
+          <td>(</td>
+          <td class="paramtype">std::string &amp;&#160;</td>
+          <td class="paramname"><em>result</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classGame.html">Game</a> *&amp;&#160;</td>
+          <td class="paramname"><em>game</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>steps</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; double &gt;&#160;</td>
+          <td class="paramname"><em>stats</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Method to generate overall stats of the safety game learning process. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">result</td><td>- string to pass on the result and print it out later </td></tr>
+    <tr><td class="paramname">game</td><td>- game to access stats </td></tr>
+    <tr><td class="paramname">stats</td><td>- time statistics </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

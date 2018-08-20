@@ -15,10 +15,10 @@ using json = nlohmann::json;
  * @author Oliver Markgraf
  * @date August 14
  * */
-class ParserObject {
+class Parser {
 	/**	Default constructor
 	 * */
-	public :ParserObject()
+	public :Parser()
 	{
 	}
 	/** Method to create a Game object from a json file. 
@@ -33,22 +33,17 @@ class ParserObject {
 		std::vector<std::string> variables_dash_vector;
 		std::vector<std::string> exprs_var;	
 		auto smt2lib = j["smt2"].get<std::string>();
-		std::cout << "test inside json parser " << smt2lib << std::endl;
 		int i = j["successors"];	
-		std::cout << "Parsing json..." << std::endl;
 		for (int i = 0; (unsigned)i < j["variables"].size(); i ++)
 		{
-			std::cout << j["variables"][i].get<std::string>() << std::endl;
 			variables_vector.push_back(j["variables"][i].get<std::string>());
 		}
 		for (int i = 0; (unsigned)i < j["variables_dash"].size(); i ++)
 		{
-			std::cout << j["variables_dash"][i].get<std::string>() << std::endl;
 			variables_dash_vector.push_back(j["variables_dash"][i].get<std::string>());
 		}
 		for (int i = 0; (unsigned)i < j["exprs"].size(); i ++)
 		{
-			std::cout << "added to expr_var: " << j["exprs"][i].get<std::string>() << std::endl;
 			exprs_var.push_back(j["exprs"][i].get<std::string>());
 		}
 
