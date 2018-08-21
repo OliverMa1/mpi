@@ -3,7 +3,7 @@
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\hyperlink{classGame_a1ae88a7d6500fc7a81bb3880cb474cac}{Game} (z3\+::context \&ctx, std\+::vector$<$ std\+::string $>$ var\+\_\+char, std\+::vector$<$ std\+::string $>$ var\+\_\+dash\+\_\+char, std\+::vector$<$ std\+::string $>$ exprs\+\_\+var\+\_\+char, std\+::string smt2lib, int n)
+\hyperlink{classGame_a1051ad3ca91f98eade1fe84c68ec721b}{Game} (z3\+::context \&ctx, const std\+::vector$<$ std\+::string $>$ \&var\+\_\+char, const std\+::vector$<$ std\+::string $>$ \&var\+\_\+dash\+\_\+char, const std\+::vector$<$ std\+::string $>$ \&exprs\+\_\+var\+\_\+char, const std\+::string \&smt2lib, int n)
 \item 
 \mbox{\Hypertarget{classGame_afd949c6a35db3fbcdc8179756b64508d}\label{classGame_afd949c6a35db3fbcdc8179756b64508d}} 
 z3\+::expr {\bfseries get\+\_\+initial\+\_\+vertices} ()
@@ -44,17 +44,17 @@ std\+::map$<$ std\+::string, z3\+::expr $>$ {\bfseries get\+\_\+expr\+\_\+map} (
 \mbox{\Hypertarget{classGame_a9bb60a5d9bd93eaa7a7c9efe24df7ab0}\label{classGame_a9bb60a5d9bd93eaa7a7c9efe24df7ab0}} 
 int {\bfseries get\+\_\+successors} ()
 \item 
-\mbox{\Hypertarget{classGame_a3c36d863628a447ded4316d6d7dbc961}\label{classGame_a3c36d863628a447ded4316d6d7dbc961}} 
-std\+::vector$<$ std\+::string $>$ {\bfseries get\+\_\+attributes} ()
+\mbox{\Hypertarget{classGame_a5290c5e9b5a8e114b7a1e1a7803805bf}\label{classGame_a5290c5e9b5a8e114b7a1e1a7803805bf}} 
+std\+::vector$<$ std\+::string $>$ \& {\bfseries get\+\_\+attributes} ()
 \end{DoxyCompactItemize}
 
 
 \subsection{Constructor \& Destructor Documentation}
-\mbox{\Hypertarget{classGame_a1ae88a7d6500fc7a81bb3880cb474cac}\label{classGame_a1ae88a7d6500fc7a81bb3880cb474cac}} 
+\mbox{\Hypertarget{classGame_a1051ad3ca91f98eade1fe84c68ec721b}\label{classGame_a1051ad3ca91f98eade1fe84c68ec721b}} 
 \index{Game@{Game}!Game@{Game}}
 \index{Game@{Game}!Game@{Game}}
 \subsubsection{\texorpdfstring{Game()}{Game()}}
-{\footnotesize\ttfamily Game\+::\+Game (\begin{DoxyParamCaption}\item[{z3\+::context \&}]{ctx,  }\item[{std\+::vector$<$ std\+::string $>$}]{var\+\_\+char,  }\item[{std\+::vector$<$ std\+::string $>$}]{var\+\_\+dash\+\_\+char,  }\item[{std\+::vector$<$ std\+::string $>$}]{exprs\+\_\+var\+\_\+char,  }\item[{std\+::string}]{smt2lib,  }\item[{int}]{n }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+{\footnotesize\ttfamily Game\+::\+Game (\begin{DoxyParamCaption}\item[{z3\+::context \&}]{ctx,  }\item[{const std\+::vector$<$ std\+::string $>$ \&}]{var\+\_\+char,  }\item[{const std\+::vector$<$ std\+::string $>$ \&}]{var\+\_\+dash\+\_\+char,  }\item[{const std\+::vector$<$ std\+::string $>$ \&}]{exprs\+\_\+var\+\_\+char,  }\item[{const std\+::string \&}]{smt2lib,  }\item[{int}]{n }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
 Constructor for a game object, stores all the data in z3\+::expr and z3\+::expr\+\_\+vector. Ensures that correct amount of variables are given. 
 \begin{DoxyParams}{Parameters}

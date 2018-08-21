@@ -27,7 +27,7 @@ class Game {
 	  * @param smt2lib - string that encodes the game with assertions
 	  * @param n - number of maximal successors of each node
 	  * */ 
-	 Game(z3::context & ctx, std::vector<std::string> var_char, std::vector<std::string> var_dash_char, std::vector<std::string> exprs_var_char, std::string smt2lib, int n):  successors(n)
+	 Game(z3::context & ctx, const std::vector<std::string> & var_char,const std::vector<std::string> &var_dash_char,const std::vector<std::string> &exprs_var_char,const std::string & smt2lib, int n):  successors(n)
 	 {
 		if (var_char.size() != var_dash_char.size())
 		{
@@ -82,8 +82,6 @@ class Game {
 			}
 			exprs.push_back(right);
 			expr_map.insert(std::make_pair(exprs_var_char[i-5],right));
-			std::cout << "base test: " << i << " " << base[i] << std::endl;
-			std::cout << "added " << exprs_var_char[i-5] << " to " << right << std::endl;
 		}
 		if (exprs_var.size() != exprs.size())
 		{
@@ -143,7 +141,7 @@ class Game {
 	 {
 		 return successors;
 	 }
-	 std::vector<std::string> get_attributes()
+	 std::vector<std::string> & get_attributes()
 	 {
 		 return attributes;
 	 }

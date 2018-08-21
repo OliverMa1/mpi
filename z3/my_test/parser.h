@@ -26,9 +26,8 @@ class Parser {
 	 * @param j - json file to create a game
 	 * 
 	 * */
-	Game* parse_json(z3::context & ctx, json j)
+	Game* parse_json(z3::context & ctx, const json & j)
 	{
-		std::cout << j << std::endl;
 		std::vector<std::string> variables_vector;
 		std::vector<std::string> variables_dash_vector;
 		std::vector<std::string> exprs_var;	
