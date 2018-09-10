@@ -524,7 +524,7 @@ const z3::expr & edges, z3::context & context, const z3::expr_vector & all_varia
 	 result += "Universal counterexamples found: "+ std::to_string(stats[10]);
 	 result += "\n";	 
  }
-** Main method that encodes the interaction between teacher and learner.
+/** Main method that encodes the interaction between teacher and learner.
  * @param argc - number of inputs, should be 2
  * @param argv - argv[1], should be the path to the input file
  */
@@ -547,8 +547,8 @@ int main(int argc, char* argv[])
 		json j = json::parse(ifs);
 		z3::expr_vector b(ctx);
 		b.push_back(initial_vertices);
-		Parser* a = new Parser();
-		Game* game = a->parse_json(ctx,j);
+                Parser a;
+                Game* game = a.parse_json(ctx,j);
 		prep(game->get_attributes());
 		z3::expr initial_vertices = game->get_initial_vertices();
 		z3::expr safe_vertices = game->get_safe_vertices();
