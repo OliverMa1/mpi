@@ -321,7 +321,24 @@ Assume there exists a Boolean formula $f'$ with maximum threshold m such that $f
 \end{proof}
 \newpage
 \section{Experiments}
-
+\begin{enumerate}
+\item implemented teacher github....
+\item horn learner from paper 
+\item compared to ??? (rpni and sat algorithm???)
+\item restrictions: each node has bounded amount of successors
+\item intel core i3-4005U Ubuntu  memory limit 3.8 GiB
+\item diagonal game appendix
+\item box game appendix(TODO)
+\item solitary box game
+\item evasion game appendix
+\item follow game 
+\item program repair by Beyene et al.
+\item laufband appendix
+\item quadrat appendix
+\item multitank appendix
+\item Follow takes most amount of time, no easy safety specification, no absolute function used, limited by input tool? size is depth of tree
+\item test results for unbounded learner
+\end{enumerate}
 \begin{table}[h]
  \caption{Results of the Experiments}
 \begin{tabularx}{\textwidth}{p{0.1\textwidth}p{0.1\textwidth} p{0.1\textwidth} p{0.1\textwidth}p{0.1\textwidth} p{0.1\textwidth} p{0.1\textwidth} p{0.08\textwidth}}
@@ -329,13 +346,15 @@ Assume there exists a Boolean formula $f'$ with maximum threshold m such that $f
 & \multicolumn{7}{c}{Horn Learner}\\ \hline
 Game & Time in s & Iter.& Size & $|Pos|$ & $|Neg|$ & $|Ex|$ & $|Uni|$ \\ \hline
 Diagonal & 4.769 & 25 & 6 & 11 & 7 & 4 & 2 \\ 
-Evasion & 5.1 & 16 & 4 & 1 & 4 & 7 & 3 \\ 
+Box & 0.641 & 9 & 4 & 2 & 3 & 0 & 3 \\
+Solitary Box & 0.697 & 4 & 3 & 1 & 2 & 0 & 0 \\
+Evasion & 5.206 & 16 & 4 & 1 & 4 & 7 & 3 \\ 
 Follow & 44.097 & 181 & 14 & 1 & 129 & 32 & 18 \\ 
-Program-repair & 1.2 & 14 & 11 & 1 & 2 & 10 & 0 \\
+Program-repair & 1.129 & 14 & 11 & 1 & 2 & 10 & 0 \\
 Laufband & 0.982 & 5 & 3 & 1 & 1 & 1 & 1 \\ 
-Quadrat 3x3 & 6.2 & 61 & 13 & 1 & 18 & 19 & 22 \\
+Quadrat 3x3 & 6.213 & 61 & 13 & 1 & 18 & 19 & 22 \\
 Quadrat 5x5 & 4.195 & 41 & 16 & 1 & 13 & 16 & 10 \\
-Multitank 3 & 10.7 & 115& 12 & 1 & 82 & 10 & 21 \\
+Multitank 3 & 10.722 & 115& 12 & 1 & 82 & 10 & 21 \\
 
 \end{tabularx}
  \label{tab:TESTS} 
