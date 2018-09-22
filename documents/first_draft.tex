@@ -47,12 +47,14 @@ The main results of this paper are how to use a decision tree learner for Horn S
 We give an overview of all definitions that will be used during this paper. These include the definition of safety games and horn constraints. One of the first things we have to understand is the notion of data points.
  
 We use data points over a domain $D$ to describe points in our graph. Our learner can use Horn constraints to build a tree $\mathcal{T}$, which evaluates data points to a boolean value ($\mathcal{T}:D \to \mathbb{B}$). The learning algorithm constructs a tree using a set of base predicates which evaluate to $true$ or $false$ on data points.
-We can see, that a boolean function $f: D \to \mathbb{B}$ induces a valuation $v: D \to {true,false}$, where $x \mapsto_f 1 \iff x\mapsto_v true$
+We can see, that a boolean function $f: D \to \mathbb{B}$ induces a valuation $v: D \to {true,false}$, where $x \mapsto_f 1 \iff x\mapsto_v true$.
 \subsection{Safety Games}
 
-We want to learn winning strategies for safety games, but we have to define first what a safety game is.
+First of we start with some definitions needed to understand safety games.
+
+
 We say that a safety game is a infinite duration game over a graph with a countable set of vertices. Safety games are played on an arena $\mathfrak{A} = (V_{0}, V_{1}, E)$, where $V_{0}$ and $V_{1}$ are disjoint and countable sets of vertices and $E$ defines a directed edge relation $E \subseteq V \times V$. We write successor of a set of vertices as $E(X) = \{y \;|\; \exists x \in X : (x,y) \in E\}$.
-The initial vertices of a safety game are defined in the following way. $\mathfrak{G} = (\mathfrak{A}, F, I)$, $\mathfrak{A} = (V_{0}, V_{1}, E)$ is an arena, $F \subseteq V$ a set of \textit{safe vertices} and $I \subseteq F$ a set of \textit{initial vertices}. The next thing is to explain how this safety games are played. We have two players, Player 0 and Player 1 and each of them owns a set of vertices. Player 0 owns the vertices that are in $V_{0}$ and Player 1 the vertices in $V_{1}$. The safety game starts when a initial token is placed on one initial vertex $v_{0} \in I$. The player owning the vertex can move the token to one of its successors. Since we are talking about infinite duration games, the process is repeated ad infinitum. This yields a infinite sequence of vertices $v_{0}v_{1}...$ that we call a \textit{play} iff $v_{0} \in I$ and $(v_{i}, v_{i+1}) \in E$ for all $i \in \mathbb{N}$. A play is \textit{winning} for Player 0 if $v_{i} \in F$ for all $i \in \mathbb{N}$. Otherwise the play is \textit{winning} for Player 1.
+The initial vertices of a safety game are defined in the following way. $\mathfrak{G} = (\mathfrak{A}, F, I)$, $\mathfrak{A} = (V_{0}, V_{1}, E)$ is an arena, $F \subseteq V$ a set of \textit{safe vertices} and $I \subseteq F$ a set of \textit{initial vertices}. Next, we explain how safety games are played. We have two players, Player 0 and Player 1 and each of them owns a set of vertices. Player 0 owns the vertices that are in $V_{0}$ and Player 1 the vertices in $V_{1}$. The safety game starts when a initial token is placed on one initial vertex $v_{0} \in I$. The player owning the vertex can move the token to one of its successors. Since we are talking about infinite duration games, the process is repeated ad infinitum. This yields a infinite sequence of vertices $v_{0}v_{1}...$ that we call a \textit{play} iff $v_{0} \in I$ and $(v_{i}, v_{i+1}) \in E$ for all $i \in \mathbb{N}$. A play is \textit{winning} for Player 0 if $v_{i} \in F$ for all $i \in \mathbb{N}$. Otherwise the play is \textit{winning} for Player 1.
 
 A strategy for Player $\sigma$, $\sigma \in \{0,1\}$, is a mapping $f_{\sigma} : V*V_{\sigma} \to V$. A winning strategy yields a winning play for any play that is created using the strategy. We can get a winning strategy if you look at the \textit{winning set} of a safety game which is defined as follows.
 \paragraph*{Winning set} For a safety game $\mathfrak{G} = (\mathfrak{A}, F, i)$ over the arena $\mathfrak{A} = (V_{0}, V_{1}, E)$, a winning set is a set $W \subseteq V$ satisfying
@@ -63,43 +65,25 @@ A strategy for Player $\sigma$, $\sigma \in \{0,1\}$, is a mapping $f_{\sigma} :
 \item $E(\{v\}) \subseteq W$ for all $v \in W \cap V_{0}$
 \end{enumerate}
 
-A winning strategy for Player 0 would be to move inside the winning set. This can be proven with a induction over the length of plays. Since we want to use binary decision diagrams for the learning process, we need construct BDDs that represent the sets $I$, $W$, and $F$.  
+A winning strategy for Player 0 would be to move inside the winning set. This can be proven with a induction over the length of plays.
 
 \subsection{Teacher and learner interaction}
 
-In this section we want to explain how the teacher and the learner interact with each other.
-Since we want to learn safety games, we need to compute winnings sets. Winnings sets have the above defined properties. We will follow the ICE-learning approach by learning with counterexamples, meaning if one of the properties is unsatisfied we can generate one counterexample. We can give positive counterexamples if property $I \subseteq W$ is unsatisfied and a negative counterexample if $W \subseteq F$ is unsatisfied.
+In this section we explain how the teacher and the learner interact with each other.
+The goal is to compute winnings sets. Winnings sets have the above defined properties. We will follow the ICE-learning approach by learning with counterexamples, meaning if one of the properties is unsatisfied we can generate one counterexample. 
+
+We can give positive counterexamples if property $I \subseteq W$ is unsatisfied and a negative counterexample if $W \subseteq F$ is unsatisfied.
 For the third property we can give existential counterexamples ($ x \to (x_1 \vee  ... \vee x_k)$) and for the fourth we can give universal counterexamples ($ x\to (x_1 \wedge ... \wedge x_k)$). We will show later that it is possible to transform those counterexamples into horn constraints.
 
 The teacher has knowledge about the safety game and can verify winning sets that the learner proposes. The teacher gives the learner counterexamples if the proposed winning set is wrong. 
 The learner makes a conjecture about the winning set using the counterexamples given by the teacher. Then he gives the teacher his constructed winning set.
 The interaction between teacher and learner takes place in rounds. In each round the learner makes a new conjecture and the teacher either accepts it or gives the learner a counterexample for his conjecture.
 
-The counterexamples of the teacher have the form mentioned in the construction, so we can transform them to horn constraints and build a binary decision tree with the help of the constraints. This binary decision tree describes our winning set. Afterwards, the teacher has to check if the tree fulfills the properties.
+The counterexamples of the teacher are not horn clauses. Our goal is it to use a Horn learner, thus we present a way how to transform the counterexamples given by teacher into Horn clauses, usable by the Horn learner. 
+
+First, we need to formalize definitions about the counterexamples. Starting with a \emph{Game Sample} that is produced by the teacher, the goal is to have a \emph{Horn Sample} which can be used by the learner. 
 
 
-\paragraph*{arena} $\mathfrak{A} = (V_{0}, V_{1}, E)$, where $V_{0}$ and $V_{1}$ are disjoint and countable sets of vertices and $E$ defines a directed edge relation $E \subseteq V \times V$
-\paragraph*{safety game} $\mathfrak{G} = (\mathfrak{A}, F, i)$, $\mathfrak{A} = (V_{0}, V_{1}, E)$ is an arena, $F \subseteq V$ a set of \textit{safe vertices} and $I \subseteq F$ a set of \textit{initial vertices}
-\paragraph*{play} $v_{0}v_{1}...$ is called a \textit{play} iff $v_{0} \in I$ and $(v_{i}, v_{i+1}) \in E$ for all $i \in \mathbb{N}$
-\paragraph*{strategy}A strategy for Player $\sigma$, $\sigma \in \{0,1\}$, is a mapping $f_{\sigma} : V*V_{\sigma} \to V$
-\paragraph*{winning play} A play is \textit{winning} for Player 0 if $v_{i} \in F$ for all $i \in \mathbb{N}$
-\paragraph*{winning strategy} 
-A strategy for Player $\sigma$, $\sigma \in \{0,1\}$, is a mapping $f_{\sigma} : V*V_{\sigma} \to V$
-\paragraph*{winning set} For a safety game $\mathfrak{G} = (\mathfrak{A}, F, i)$ over the arena $\mathfrak{A} = (V_{0}, V_{1}, E)$, a winning set is a set $W \subseteq V$ satisfying
-\begin{enumerate}
-\item $I \subseteq W$
-\item $W \subseteq F$
-\item $E(\{v\}) \cap W \neq \emptyset$ for all $v \in W \cap V_{0}$
-\item $E(\{v\}) \subseteq W$ for all $v \in W \cap V_{0}$
-\end{enumerate}
-\begin{mydef}
-A \emph{Horn Sample} is a set $S = (X,C)$, where $X$ is a set of positive and negative data points and $C$ is a set consisting of Horn constraints over $X$. Those formulas have the following structure:
-\begin{enumerate}
-\item $true \to x$
-\item $x \to false$
-\item $x_1 \wedge...\wedge x_k \to x $
-\end{enumerate}
-\end{mydef}
 \begin{mydef}
 A \emph{Game Sample} is a set $S = (X,C)$, where $X$ is a set of positive and negative data points and $C$ is a set of formulas over $X$. Those formulas have the following structure:
 \begin{enumerate}
@@ -111,76 +95,39 @@ A \emph{Game Sample} is a set $S = (X,C)$, where $X$ is a set of positive and ne
 \end{mydef}
 
 \begin{mydef}
-A Horn Sample is \emph{valid} $\iff $ there is a valuation $v$ such that $v \vDash C$.
+A \emph{Horn Sample} is a set $S = (X,C)$, where $X$ is a set of boolean variables and $C$ is a set consisting of Horn constraints over $X$. Those formulas have the following structure:
+\begin{enumerate}
+\item $true \to x$
+\item $x \to false$
+\item $x_1 \wedge...\wedge x_k \to x $
+\end{enumerate}
+\end{mydef}
+
+Furthermore, we need to define what it means for a sample to be valid. We want a sample to be valid if it doesn't contradict itself, so we take an intuitive definition for validity.  
+\begin{mydef}
+A Horn Sample (X,C) is \emph{valid} $\iff $ there is a valuation $v$ such that $v \vDash C$.
 \end{mydef}
 \begin{mydef}
-A Game Sample is \emph{valid} $\iff $ there is a valuation $v$ such that $v \vDash C$.
+A Game Sample (X,C) is \emph{valid} $\iff $ there is a valuation $v$ such that $v \vDash C$.
 \end{mydef}
 
 \subsection{Horn constraints and how to use them with data points}
-We have a set of formulas $C$ over a set of data points $X \subseteq D$ that are Horn constraints.
+In this section we explain how the Horn Sample and the Game Sample are connected. In the Game Sample the Horn constraints are over a set of data points. But in the Horn Sample we have Horn constraints over a set of boolean variables. 
+
 A Horn clause (or a Horn constraint) over $X$ is a disjunction of literals over $X$ with at most one positive literal.
-These are not boolean formulas since the formulas go over data points. We call $S :=(X,C)$ a Game sample, where $C = \{c_1,..,c_m\}$ is a set of formulas that are Horn constraints, but instead of variables we have data points, and $D(C) := \{D(c)|c \in C\}$ is a set of data points that appear in the formulas. But we want to evaluate Horn constraints over boolean variables. To do this we need a new Horn sample $S' = (X',C')$, but this time we have Horn constraints over boolean variables. To get this sample we need define a bijective function $v: D(C) \to X';d \mapsto x_d$ that maps our data points to variables that we use in our Horn constraints. Additionally, $C'$ has the same Horn constraints like $C$, but every data point is replaced with its variable. We can now define a valuation for $X'$, $v_\mathcal{T}: X' \to \mathbb{B};x_d \mapsto t(v^{-1}(x_{d}))$. We say a Horn sample $S = (X,C)$ over boolean variables is consistent with a tree $\mathcal{T}$ if and only if $v_{\mathcal{T}} \vDash \bigwedge_{c \in C} c$.
-\paragraph*{existential counter example} $x \to \bigvee_{i} x_i$
-\paragraph*{universal counter example} $ x \to \bigwedge_{i} x_i$
-\paragraph*{data points} elements of a abstract domain $\mathbb{D}$ for example vectors of integers
-$\vec{x_1} = [3,4,5], \vec{x_2} = [4,2,7]$.$a_1$ describes the first entry of the vector $a_2$ the second and $a_3$ the third entry of the vector.
-\paragraph*{valuation} a valuation $v$ for a set of predicates is a function $v: X \to \{true,false\}$
-\paragraph*{decision tree} binary trees whose internal nodes are labeled with predicates and leafs are either true or false. (definition in the paper)
-\paragraph*{formula of a decision tree}
-\begin{equation}\label{Formula of a decision tree}
-\psi_\mathcal{T} =\bigvee_{\pi \in \Pi_{true}} (\bigwedge_{\rho \in \Pi} \rho)
-\end{equation}
+These are not necessarily boolean formulas since the formulas can go over data points. Let $S :=(X,C)$ be a Game sample, where $C = \{c_1,..,c_m\}$ is a set of formulas that are constraints, but instead of variables we have data points, and $D(C) := \{D(c)|c \in C\}$ is a set of data points that appear in the formulas. But we want to evaluate  constraints over boolean variables. To do this we need a Sample $S' = (X',C')$, but this time we have Horn constraints over boolean variables. To get this sample we need define a bijective function $v: D(C) \to X';d \mapsto x_d$ that maps our data points to variables that we use in our Horn constraints. Additionally, $C'$ has the same Horn constraints like $C$, but every data point is replaced with its variable. 
 
-\paragraph*{evaluation of data points over a decision tree} Given a set of data points X, a decision tree can evaluate them to $true$ or $false$.
-\paragraph*{Example for a valuation over a decision tree.}
-\begin{equation*}
-\begin{split}
- D &:= \{\vec{x_1},\vec{x_2}\}, \vec{x_1} = [3,4,5], \vec{x_2} = [4,2,7]\\
- \mathcal{P} &:= \{p_1,p_2\}, p_1 := a_1 \leq 3 \wedge a_2 \leq 4 \wedge a_3 \leq 5, p_2 :=a_1 \leq 6 \wedge a_2 \leq 7 \wedge a_3 \leq 8 \\
- p_1(\vec{x_1}) &= true, p_1(\vec{x_2}) = false\\
- p_2(\vec{x_1}) &= true, p_2(\vec{x_2}) = true
-\end{split}
-\end{equation*}
-Assume following tree constructed by the learner:
-\Tree [.p_1 [.p_2 [.true ] [.true ] ].p_2 [.false ] ].p_1
+We can now define a valuation for $X'$, $v_\mathcal{T}: X' \to \mathbb{B};x_d \mapsto t(v^{-1}(x_{d}))$. Where $t$ is the evaluation of the data point of $x_d$ on the decision tree.
 
-A valuation of $\vec{x_1}$ and $\vec{x_2}$ would look like this:
-\begin{equation*}
-\begin{split}
-v_\mathcal{T}(\vec{x_1}) &= p_1(\vec{x_1}) \wedge p_2(\vec{x_1}) \vee p_1(\vec{x_1}) \wedge \lnot p_2(\vec{x_1}) = true\\
-v_\mathcal{T}(\vec{x_2}) &= p_1(\vec{x_2}) \wedge p_2(\vec{x_2}) \vee p_1(\vec{x_2}) \wedge \lnot p_2(\vec{x_2}) = false 
-\end{split}
-\end{equation*}
-\paragraph*{Horn constraints} A Horn clause (or a Horn constraint) over $X$ is a disjunction of literals over $X$ with at most one positive literal.
-\paragraph*{consistency} A decision Tree $\mathcal{T}$ is consistent with Horn constraints $C$ over data points $X$ if 
-$v_\mathcal{T} \vDash \bigwedge C$
-\begin{mydef}
-A \emph{Horn Sample} is a set $S = (X,C)$, where $X$ is a set of positive and negative data points and $C$ is a set consisting of Horn constraints over $X$. Those formulas have the following structure:
-\begin{enumerate}
-\item $true \to x$
-\item $x \to false$
-\item $x_1 \wedge...\wedge x_k \to x $
-\end{enumerate}
-\end{mydef}
-\begin{mydef}
-A \emph{Game Sample} is a set $S = (X,C)$, where $X$ is a set of positive and negative data points and $C$ is a set of formulas over $X$. Those formulas have the following structure:
-\begin{enumerate}
-\item $true \to x$
-\item $x \to false$
-\item $x \to x_1 \vee  ... \vee x_k$
-\item $x \to x_1 \wedge ... \wedge x_k$ 
-\end{enumerate}
-\end{mydef}
+ We say a Horn sample $S = (X,C)$ over boolean variables is consistent with a tree $\mathcal{T}$ if and only if $v_{\mathcal{T}} \vDash \bigwedge_{c \in C} c$.
 
-\begin{mydef}
-A Horn Sample is \emph{valid} $\iff $ there is a valuation $v$ such that $v \vDash C$.
-\end{mydef}
-\begin{mydef}
-A Game Sample is \emph{valid} $\iff $ there is a valuation $v$ such that $v \vDash C$.
-\end{mydef}
+In summary it can be said, therefore, that we can get a valuation over boolean variables over a Game Sample, transforming it into a Sample with the same constraints over boolean variables. We will need this observation to show how we can transform such a Game Sample into a Horn Sample.
+
+\newpage
 
 \section{Transformation from Game Sample to Horn Sample} \label{transformation}
+We will begin by applying our observation from the previous section and look at a  Sample which is based on a Game Sample, but uses boolean variables instead.
+
 Let $C$ be a set of formulas over a set of variables $X$. These formulas are of the following forms:
 \begin{enumerate}
 \item $true \to x$
@@ -260,6 +207,12 @@ x \to x_1 \vee &\dots \vee x_n \; is \; consistent \; with \; \psi \\
 \end{proof}
 
 \section{Bounded Decision Tree Learner for Horn Samples}
+
+In this section, we show that we can build a decision tree learner that is guaranteed to terminate. We already know that the Horn Learner terminates on a sample\cite{d2017horn}, but what is left to show is that the teacher learner interaction eventually terminates. This is not obvious since the learner is learning over a set of formulas that involves numerical attributes, making it infinitely large.
+
+We want to bound the maximum threshold that can occur in the inequalities the learner uses in the hypothesis. Thus, the amount of non equivalent boolean formulas that respect the restriction is finite. We iteratively bound the maximum threshold that occur in the inequalities and only increase the maximum threshold if there is no tree that respects the restriction and is consistent with the sample. The learner never proposes the same tree twice since the teacher will respond with an appropriate counterexample if the tree  is not a winning set. Furthermore, we won't increase the maximum threshold if there is a tree that respects the threshold and is a winning set. Thus, if there is a tree that is a winning set within a maximum threshold, the learner will find this tree in an finite amount of time.
+
+To proof our claim, we want to use theorem \ref{Theorem1}. For this, we will define when a set of points is separable.
 \begin{thm} \label{Theorem1}
 If the input set of points X is separable and the input Horn Constraints are satisfiable, then the Learner always terminates with a decision tree consistent with the Horn sample (X,C).\cite{d2017horn}
 \end{thm}
@@ -273,6 +226,8 @@ $s \equiv_m s'$ $\iff$ there is no predicate of the form $a_i \leq$ $c$ with $|c
 \begin{mydef}
 We can augment a sample $S = (X,C)$ to obtain a \emph{m-augmented Horn Sample of S}, denoted by $S \oplus m$. To obtain $S \oplus m$, we first construct the set $E = \{(s,s')\;|\; s \equiv_m s'\}$ and add it to a our Horn Constraints, $(X,C \cup E)$.
 \end{mydef}
+
+Next, we want to show that if we have a Horn Sample that respect a maximum threshold m, our Horn Learner returns with a tree that is consistent with the sample. Our goal is to show that if we have a Game Sample, then our Horn Learner returns with a tree that is consistent with the Game Sample. But first we have to take detour to Horn Samples. We will use later our transformation to show that the same can be done for the Game Sample.
 
 \begin{thm} \label{Horn Theorem}
 Let $S$ be an Horn Sample. Then the following holds:
@@ -302,6 +257,7 @@ Now, we have that the input set of points is separable and that $S \oplus m$ is 
 \end{enumerate}
 \end{proof}
 
+Now, that we have shown that our Horn learner works with a Horn Sample, we show that it also works if we start with a Game Sample.
 \begin{thm}
 Let $S_{Game}$ be a Game Sample. Then the following holds:
 \begin{enumerate}
@@ -365,15 +321,12 @@ Multitank 3 & 10.722 & 115& 12 & 1 & 82 & 10 & 21 \\
 \end{tabularx}
  \label{tab:TESTS} 
 \end{table}
-\newpage
 
+\newpage
 \section{Conclusion}
 \newpage
-\bibliographystyle{plain}
-\bibliography{lib}
-\newpage
-\appendix
 \section{Appendix}
+\subsection{Game examples}
 \begin{figure}[h] \label{Laufband}
   \caption{In this example we have a robot moving on an infinite, discrete one-dimensional grid. Two players can control the robot, Player 0 and Player 1. The goal of Player 0 is to let the robot stay in the safe zone, the goal of Player 1 is to move the robot out of it. Both player take turns moving the robot, moving it at most one field in one direction.
 .}
@@ -421,5 +374,7 @@ Multitank 3 & 10.722 & 115& 12 & 1 & 82 & 10 & 21 \\
   \centering
     {\includegraphics[width=8.0cm]{zwei_geraden.png}} 
 \end{figure}
-
+\newpage
+\bibliographystyle{plain}
+\bibliography{lib}
 \end{document}
