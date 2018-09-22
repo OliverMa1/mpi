@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2018.7.16)  10 SEP 2018 14:12
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2018.7.16)  10 SEP 2018 14:21
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -864,12 +864,6 @@ Underfull \hbox (badness 10000) in paragraph at lines 313--314
 
  []
 
-
-LaTeX Warning: Reference `lemma' on page 9 undefined on input line 315.
-
-
-LaTeX Warning: Reference `lemma' on page 9 undefined on input line 319.
-
 [9] [10]
 Overfull \hbox (12.99316pt too wide) in paragraph at lines 338--339
 []\OT1/cmr/m/it/10 Evasion game: \OT1/cmr/m/n/10 Two robots are mov-ing in an i
@@ -928,32 +922,32 @@ Overfull \hbox (20.11537pt too wide) in alignment at lines 365--365
 
 [12] [13] (./Learning of Safety Controllers using Horn Constraints.bbl)
 [14]
-<laufband.png, id=236, 926.46124pt x 241.90375pt>
+<laufband.png, id=237, 926.46124pt x 241.90375pt>
 File: laufband.png Graphic file (type png)
 <use laufband.png>
 Package pdftex.def Info: laufband.png  used on input line 381.
 (pdftex.def)             Requested size: 227.62204pt x 59.43118pt.
-<wasser_tank.png, id=238, 1053.9375pt x 225.84375pt>
+<wasser_tank.png, id=239, 1053.9375pt x 225.84375pt>
 File: wasser_tank.png Graphic file (type png)
 <use wasser_tank.png>
 Package pdftex.def Info: wasser_tank.png  used on input line 390.
 (pdftex.def)             Requested size: 227.62204pt x 48.776pt.
-<quadrat.png, id=239, 397.485pt x 391.4625pt>
+<quadrat.png, id=240, 397.485pt x 391.4625pt>
 File: quadrat.png Graphic file (type png)
 <use quadrat.png>
 Package pdftex.def Info: quadrat.png  used on input line 397.
 (pdftex.def)             Requested size: 227.62204pt x 224.18124pt.
-<multi_wasser_tank.png, id=240, 1053.9375pt x 426.59375pt>
+<multi_wasser_tank.png, id=241, 1053.9375pt x 426.59375pt>
 File: multi_wasser_tank.png Graphic file (type png)
 <use multi_wasser_tank.png>
 Package pdftex.def Info: multi_wasser_tank.png  used on input line 404.
 (pdftex.def)             Requested size: 227.62204pt x 92.13246pt.
-<catch.png, id=241, 401.5pt x 401.5pt>
+<catch.png, id=242, 401.5pt x 401.5pt>
 File: catch.png Graphic file (type png)
 <use catch.png>
 Package pdftex.def Info: catch.png  used on input line 415.
 (pdftex.def)             Requested size: 227.62204pt x 227.62596pt.
-<zwei_geraden.png, id=242, 401.5pt x 401.5pt>
+<zwei_geraden.png, id=243, 401.5pt x 401.5pt>
 File: zwei_geraden.png Graphic file (type png)
 <use zwei_geraden.png>
 Package pdftex.def Info: zwei_geraden.png  used on input line 422.
@@ -969,46 +963,38 @@ Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 425.
 Package rerunfilecheck Info: File `"Learning of Safety Controllers using Horn C
 onstraints".out' has not changed.
 (rerunfilecheck)             Checksum: 65799C5C58D92CE4CEADDA46E015559F;631.
-
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 425.
  ) 
 Here is how much of TeX's memory you used:
- 7554 strings out of 492982
- 104626 string characters out of 6134896
- 218256 words of memory out of 5000000
- 10853 multiletter control sequences out of 15000+600000
- 15007 words of font info for 59 fonts, out of 8000000 for 9000
+ 7550 strings out of 492982
+ 104588 string characters out of 6134896
+ 218279 words of memory out of 5000000
+ 10851 multiletter control sequences out of 15000+600000
+ 14388 words of font info for 57 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  28i,16n,28p,1129b,497s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/shar
-e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></usr/share/texli
-ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texlive/texm
-f-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist
-/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts
-/type1/public/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/
-amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cm
-r17.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb>
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/sh
-are/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/te
-xlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/t
-exmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-d
-ist/fonts/type1/public/amsfonts/euler/eufm10.pfb></usr/share/texlive/texmf-dist
-/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/share/texlive/texmf-dist/
-fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texli
+ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dis
+t/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/
+public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/
+amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfont
+s/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cm
+r7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb><
+/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/s
+hare/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/te
+xlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/
+texmf-dist/fonts/type1/public/amsfonts/euler/eufm10.pfb></usr/share/texlive/tex
+mf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/share/texlive/texm
+f-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
 Output written on "Learning of Safety Controllers using Horn Constraints.pdf" (
-17 pages, 487375 bytes).
+17 pages, 480211 bytes).
 PDF statistics:
- 357 PDF objects out of 1000 (max. 8388607)
- 304 compressed objects within 4 object streams
+ 355 PDF objects out of 1000 (max. 8388607)
+ 303 compressed objects within 4 object streams
  132 named destinations out of 1000 (max. 500000)
  111 words of extra memory for PDF output out of 10000 (max. 10000000)
 
