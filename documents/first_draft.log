@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/W32TeX) (preloaded format=pdflatex 2017.10.29)  22 SEP 2018 18:50
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/W32TeX) (preloaded format=pdflatex 2017.10.29)  22 SEP 2018 19:02
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -907,66 +907,75 @@ Overfull \hbox (20.11537pt too wide) in alignment at lines 321--321
 [][][][][][][][] 
  []
 
-[11] [12]
-<laufband.png, id=199, 926.46124pt x 241.90375pt>
+[11] [12] (./first_draft.bbl) [13]
+<laufband.png, id=201, 926.46124pt x 241.90375pt>
 File: laufband.png Graphic file (type png)
 <use laufband.png>
-Package pdftex.def Info: laufband.png  used on input line 334. on input line 33
-4.
+Package pdftex.def Info: laufband.png  used on input line 339. on input line 33
+9.
 Package pdftex.def Info: Requested size: 227.62204pt x 59.43118pt on input line
- 334.
-<wasser_tank.png, id=201, 1053.9375pt x 225.84375pt>
+ 339.
+<wasser_tank.png, id=203, 1053.9375pt x 225.84375pt>
 File: wasser_tank.png Graphic file (type png)
 <use wasser_tank.png>
-Package pdftex.def Info: wasser_tank.png  used on input line 343. on input line
- 343.
+Package pdftex.def Info: wasser_tank.png  used on input line 348. on input line
+ 348.
 Package pdftex.def Info: Requested size: 227.62204pt x 48.776pt on input line 3
-43.
-<quadrat.png, id=202, 397.485pt x 391.4625pt>
+48.
+<quadrat.png, id=204, 397.485pt x 391.4625pt>
 File: quadrat.png Graphic file (type png)
 <use quadrat.png>
-Package pdftex.def Info: quadrat.png  used on input line 350. on input line 350
+Package pdftex.def Info: quadrat.png  used on input line 355. on input line 355
 .
 Package pdftex.def Info: Requested size: 227.62204pt x 224.18124pt on input lin
-e 350.
-<multi_wasser_tank.png, id=203, 1053.9375pt x 426.59375pt>
+e 355.
+<multi_wasser_tank.png, id=205, 1053.9375pt x 426.59375pt>
 File: multi_wasser_tank.png Graphic file (type png)
 <use multi_wasser_tank.png>
-Package pdftex.def Info: multi_wasser_tank.png  used on input line 357. on inpu
-t line 357.
+Package pdftex.def Info: multi_wasser_tank.png  used on input line 362. on inpu
+t line 362.
 Package pdftex.def Info: Requested size: 227.62204pt x 92.13246pt on input line
- 357.
-<catch.png, id=204, 401.5pt x 401.5pt>
+ 362.
+<catch.png, id=206, 401.5pt x 401.5pt>
 File: catch.png Graphic file (type png)
 <use catch.png>
-Package pdftex.def Info: catch.png  used on input line 368. on input line 368.
+Package pdftex.def Info: catch.png  used on input line 373. on input line 373.
 Package pdftex.def Info: Requested size: 227.62204pt x 227.62596pt on input lin
-e 368.
-<zwei_geraden.png, id=205, 401.5pt x 401.5pt>
+e 373.
+<zwei_geraden.png, id=207, 401.5pt x 401.5pt>
 File: zwei_geraden.png Graphic file (type png)
 <use zwei_geraden.png>
-Package pdftex.def Info: zwei_geraden.png  used on input line 375. on input lin
-e 375.
+Package pdftex.def Info: zwei_geraden.png  used on input line 380. on input lin
+e 380.
 Package pdftex.def Info: Requested size: 227.62204pt x 227.62596pt on input lin
-e 375.
- [13 <./laufband.png> <./wasser_tank.png>] [14 <./quadrat.png> <./multi_wasser_
-tank.png>] [15 <./catch.png> <./zwei_geraden.png (PNG copy)>]
-(./first_draft.bbl)
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 380.
- [16]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 380.
+e 380.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 383.
+ [14 <./laufband.png> <./wasser_tank.png>]
+[15 <./quadrat.png> <./multi_wasser_tank.png>] [16 <./catch.png> <./zwei_gerade
+n.png (PNG copy)>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 383.
  (./first_draft.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 380.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 380.
-Package rerunfilecheck Info: File `first_draft.out' has not changed.
-(rerunfilecheck)             Checksum: FD3BEFF6C1BB161DD171437B626DEB92;693.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 380.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 383.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 383.
+
+
+Package rerunfilecheck Warning: File `first_draft.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `first_draft.out':
+(rerunfilecheck)             Before: 65799C5C58D92CE4CEADDA46E015559F;631
+(rerunfilecheck)             After:  F1ED17D170D627A192E6C9398C5D2A18;695.
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 383.
  ) 
 Here is how much of TeX's memory you used:
- 7489 strings out of 492990
- 102847 string characters out of 6136333
- 216855 words of memory out of 5000000
- 10817 multiletter control sequences out of 15000+600000
+ 7488 strings out of 492990
+ 102833 string characters out of 6136333
+ 216837 words of memory out of 5000000
+ 10816 multiletter control sequences out of 15000+600000
  14388 words of font info for 57 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  28i,15n,28p,1070b,497s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -986,10 +995,10 @@ pe1/public/amsfonts/cm/cmsy7.pfb><d:/texlive/2017/texmf-dist/fonts/type1/public
 /euler/eufm10.pfb><d:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/symbo
 ls/msam10.pfb><d:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/symbols/m
 sbm10.pfb>
-Output written on first_draft.pdf (16 pages, 464534 bytes).
+Output written on first_draft.pdf (16 pages, 464354 bytes).
 PDF statistics:
- 313 PDF objects out of 1000 (max. 8388607)
- 264 compressed objects within 3 object streams
+ 310 PDF objects out of 1000 (max. 8388607)
+ 261 compressed objects within 3 object streams
  99 named destinations out of 1000 (max. 500000)
- 119 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 111 words of extra memory for PDF output out of 10000 (max. 10000000)
 
