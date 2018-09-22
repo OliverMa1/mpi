@@ -1,46 +1,46 @@
-This is BibTeX, Version 0.99d (TeX Live 2017/W32TeX)
+This is BibTeX, Version 0.99d (TeX Live 2017/Debian)
 Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
 The top-level auxiliary file: Learning of Safety Controllers using Horn Constraints.aux
 The style file: plain.bst
 Database file #1: lib.bib
-You've used 2 entries,
+You've used 4 entries,
             2118 wiz_defined-function locations,
-            509 strings with 4507 characters,
-and the built_in function-call counts, 820 in all, are:
-= -- 81
-> -- 41
-< -- 1
-+ -- 17
-- -- 14
-* -- 52
-:= -- 136
-add.period$ -- 7
-call.type$ -- 2
-change.case$ -- 13
+            523 strings with 4891 characters,
+and the built_in function-call counts, 1825 in all, are:
+= -- 190
+> -- 77
+< -- 4
++ -- 32
+- -- 26
+* -- 114
+:= -- 277
+add.period$ -- 15
+call.type$ -- 4
+change.case$ -- 25
 chr.to.int$ -- 0
-cite$ -- 2
-duplicate$ -- 33
-empty$ -- 59
-format.name$ -- 14
-if$ -- 175
+cite$ -- 4
+duplicate$ -- 79
+empty$ -- 141
+format.name$ -- 26
+if$ -- 409
 int.to.chr$ -- 0
-int.to.str$ -- 2
-missing$ -- 2
-newline$ -- 13
-num.names$ -- 4
-pop$ -- 16
+int.to.str$ -- 4
+missing$ -- 4
+newline$ -- 23
+num.names$ -- 8
+pop$ -- 33
 preamble$ -- 1
-purify$ -- 11
+purify$ -- 21
 quote$ -- 0
-skip$ -- 26
+skip$ -- 64
 stack$ -- 0
-substring$ -- 43
-swap$ -- 12
-text.length$ -- 1
+substring$ -- 118
+swap$ -- 35
+text.length$ -- 4
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 8
+type$ -- 16
 warning$ -- 0
-while$ -- 7
-width$ -- 3
-write$ -- 24
+while$ -- 17
+width$ -- 5
+write$ -- 49
