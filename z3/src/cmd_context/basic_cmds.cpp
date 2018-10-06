@@ -59,7 +59,7 @@ public:
         if (c == nullptr) {
             std::string err_msg("unknown command '");
             err_msg = err_msg + s.bare_str() + "'";
-            throw cmd_exception(err_msg);
+            throw cmd_exception(std::move(err_msg));
         }
         m_cmds.push_back(s);
     }
@@ -138,8 +138,8 @@ ATOMIC_CMD(get_assignment_cmd, "get-assignment", "retrieve assignment", {
         macro_decls const & _m    = kv.m_value;
         for (auto md : _m) {
             if (md.m_domain.size() == 0 && ctx.m().is_bool(md.m_body)) {
-                expr_ref val(ctx.m());
-                m->eval(md.m_body, val, true);
+                model::scoped_model_completion _scm(*m, true);
+                expr_ref val = (*m)(md.m_body);
                 if (ctx.m().is_true(val) || ctx.m().is_false(val)) {
                     if (first)
                         first = false;
@@ -223,7 +223,7 @@ ATOMIC_CMD(get_proof_graph_cmd, "get-proof-graph", "retrieve proof and print it 
 });
 
 static void print_core(cmd_context& ctx) {
-    ptr_vector<expr> core;
+    expr_ref_vector core(ctx.m());
     ctx.get_check_sat_result()->get_unsat_core(core);
     ctx.regular_stream() << "(";
     bool first = true;
@@ -384,7 +384,7 @@ class set_option_cmd : public set_get_option_cmd {
             std::string msg = "error setting '";
             msg += opt_name.str();
             msg += "', option value cannot be modified after initialization";
-            throw cmd_exception(msg);
+            throw cmd_exception(std::move(msg));
         }
     }
 

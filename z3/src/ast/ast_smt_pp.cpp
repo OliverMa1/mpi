@@ -117,7 +117,7 @@ bool smt_renaming::all_is_legal(char const* s) {
 }
 
 smt_renaming::smt_renaming() {
-    for (unsigned i = 0; i < ARRAYSIZE(m_predef_names); ++i) {
+    for (unsigned i = 0; i < Z3_ARRAYSIZE(m_predef_names); ++i) {
         symbol s(m_predef_names[i]);
         m_translate.insert(s, sym_b(s, false));
         m_rev_translate.insert(s, s);
@@ -224,9 +224,6 @@ class smt_printer {
         }
         else if (m_manager.is_ite(d)) {
             m_out << "ite";            
-        }
-        else if (m_manager.is_iff(d)) {
-            m_out << "=";
         }
         else if (m_manager.is_implies(d)) {
             m_out << "=>";
@@ -498,11 +495,10 @@ class smt_printer {
         m_qlists.push_back(q);
 
         m_out << "(";
-        if (q->is_forall()) {
-            m_out << "forall ";
-        }
-        else {
-            m_out << "exists ";
+        switch (q->get_kind()) {
+        case forall_k: m_out << "forall "; break;
+        case exists_k: m_out << "exists "; break;
+        case lambda_k: m_out << "lambda "; break;
         }
         m_out << "(";
         for (unsigned i = 0; i < q->get_num_decls(); ++i) {

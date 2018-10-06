@@ -752,9 +752,10 @@ namespace smt {
     class theory_pb::card_justification : public justification {
         card& m_card;
         family_id m_fid;
+        literal m_lit;
     public:
-        card_justification(card& c, family_id fid)
-            : justification(true), m_card(c), m_fid(fid) {}
+        card_justification(card& c, literal lit, family_id fid)
+            : justification(true), m_card(c), m_fid(fid), m_lit(lit) {}
 
         card& get_card() { return m_card; }
 
@@ -769,7 +770,28 @@ namespace smt {
             return m_fid;
         }
         
-        virtual proof* mk_proof(smt::conflict_resolution& cr) { return 0; }
+        virtual proof* mk_proof(smt::conflict_resolution& cr) { 
+            ptr_buffer<proof> prs;
+            ast_manager& m = cr.get_context().get_manager(); 
+            expr_ref fact(m);
+            cr.get_context().literal2expr(m_lit, fact);
+            bool all_valid = true;
+            proof* pr = nullptr;
+            pr = cr.get_proof(m_card.lit());
+            all_valid &= pr != nullptr;
+            prs.push_back(pr);
+            for (unsigned i = m_card.k(); i < m_card.size(); ++i) {
+                pr = cr.get_proof(~m_card.lit(i));
+                all_valid &= pr != nullptr;
+                prs.push_back(pr);
+            }
+            if (!all_valid) {
+                return nullptr;
+            }
+            else {
+                return m.mk_th_lemma(m_fid, fact, prs.size(), prs.c_ptr());
+            }
+        }
 
 
     };
@@ -940,11 +962,11 @@ namespace smt {
         m_stats.m_num_conflicts++;
         context& ctx = get_context();
         justification* js = 0;
-        if (proofs_enabled()) {
-            js = alloc(theory_lemma_justification, get_id(), ctx, lits.size(), lits.c_ptr());
-        }
         c.inc_propagations(*this);
         if (!resolve_conflict(c, lits)) {
+			if (proofs_enabled()) {
+				js = alloc(theory_lemma_justification, get_id(), ctx, lits.size(), lits.c_ptr());
+			}
             ctx.mk_clause(lits.size(), lits.c_ptr(), js, CLS_AUX_LEMMA, 0);
         }
         SASSERT(ctx.inconsistent());
@@ -959,7 +981,7 @@ namespace smt {
         m_stats.m_num_propagations++;
         TRACE("pb", tout << "#prop: " << c.num_propagations() << " - " << c.lit() << " => " << l << "\n";);
         SASSERT(validate_unit_propagation(c));
-        ctx.assign(l, ctx.mk_justification(card_justification(c, get_id())));
+        ctx.assign(l, ctx.mk_justification(card_justification(c, l, get_id())));
     }
 
     void theory_pb::clear_watch(card& c) {
@@ -1407,23 +1429,27 @@ namespace smt {
             return literal(ctx.mk_bool_var(y));
         }
         
-        literal mk_max(literal a, literal b) {
-            if (a == b) return a;
-            expr_ref t1(m), t2(m), t3(m);
-            ctx.literal2expr(a, t1);
-            ctx.literal2expr(b, t2);
-            t3 = m.mk_or(t1, t2);
-            bool_var v = ctx.b_internalized(t3)?ctx.get_bool_var(t3):ctx.mk_bool_var(t3);
+        literal mk_max(unsigned n, literal const* lits) {
+            expr_ref_vector es(m);
+            expr_ref tmp(m);            
+            for (unsigned i = 0; i < n; ++i) {
+                ctx.literal2expr(lits[i], tmp);
+                es.push_back(tmp);
+            }
+            tmp = m.mk_or(es.size(), es.c_ptr());
+            bool_var v = ctx.b_internalized(tmp)?ctx.get_bool_var(tmp):ctx.mk_bool_var(tmp);
             return literal(v);
         }
-
-        literal mk_min(literal a, literal b) {
-            if (a == b) return a;
-            expr_ref t1(m), t2(m), t3(m);
-            ctx.literal2expr(a, t1);
-            ctx.literal2expr(b, t2);
-            t3 = m.mk_and(t1, t2);
-            bool_var v = ctx.b_internalized(t3)?ctx.get_bool_var(t3):ctx.mk_bool_var(t3);
+        
+        literal mk_min(unsigned n, literal const* lits) {
+            expr_ref_vector es(m);
+            expr_ref tmp(m);            
+            for (unsigned i = 0; i < n; ++i) {
+                ctx.literal2expr(lits[i], tmp);
+                es.push_back(tmp);
+            }
+            tmp = m.mk_and(es.size(), es.c_ptr());
+            bool_var v = ctx.b_internalized(tmp)?ctx.get_bool_var(tmp):ctx.mk_bool_var(tmp);
             return literal(v);
         }
 
@@ -2251,7 +2277,7 @@ namespace smt {
                 for (unsigned i = 2; i < num_lits; ++i) {
                     process_antecedent(cls.get_literal(i), offset);
                 }
-                TRACE("pb", tout << literal_vector(cls.get_num_literals(), cls.begin_literals()) << "\n";);
+                TRACE("pb", tout << literal_vector(cls.get_num_literals(), cls.begin()) << "\n";);
                 break;                
             }
             case b_justification::BIN_CLAUSE:

@@ -48,12 +48,18 @@ static_assert(sizeof(int64_t) == 8, "64 bits");
 
 #ifdef _WINDOWS
 #define SSCANF sscanf_s
-#define SPRINTF sprintf_s
+// #define SPRINTF sprintf_s
+#define SPRINTF_D(_buffer_, _i_) sprintf_s(_buffer_, Z3_ARRAYSIZE(_buffer_), "%d", _i_)
+#define SPRINTF_U(_buffer_, _u_) sprintf_s(_buffer_, Z3_ARRAYSIZE(_buffer_), "%u", _u_)
 #define _Exit exit
 #else
 #define SSCANF sscanf
-#define SPRINTF sprintf
+// #define SPRINTF sprintf
+#define SPRINTF_D(_buffer_, _i_) sprintf(_buffer_, "%d", _i_)
+#define SPRINTF_U(_buffer_, _u_) sprintf(_buffer_, "%u", _u_)
 #endif
+
+
 
 #define VEC2PTR(_x_) ((_x_).size() ? &(_x_)[0] : 0)
 
@@ -142,9 +148,7 @@ static inline uint64_t shift_left(uint64_t x, uint64_t y) {
 template<class T, size_t N> char (*ArraySizer(T (&)[N]))[N]; 
 // For determining the length of an array. See ARRAYSIZE() macro. This function is never actually called.
 
-#ifndef ARRAYSIZE
-#define ARRAYSIZE(a) sizeof(*ArraySizer(a))
-#endif
+#define Z3_ARRAYSIZE(a) sizeof(*ArraySizer(a))
 
 template<typename IT>
 void display(std::ostream & out, const IT & begin, const IT & end, const char * sep, bool & first) {
@@ -193,8 +197,10 @@ bool is_threaded();
 
 #ifdef _MSC_VER
 #define DO_PRAGMA(x) __pragma(x)
+#define PRAGMA_LOCK __pragma(omp critical (verbose_lock))
 #else
 #define DO_PRAGMA(x) _Pragma(#x)
+#define PRAGMA_LOCK _Pragma("omp critical (verbose_lock)")
 #endif
 
 #ifdef _NO_OMP_
@@ -202,7 +208,7 @@ bool is_threaded();
 #else
 #define LOCK_CODE(CODE)                         \
     {                                           \
-        DO_PRAGMA(omp critical (verbose_lock))   \
+        PRAGMA_LOCK   \
             {                                   \
                 CODE;                           \
             }                                   \

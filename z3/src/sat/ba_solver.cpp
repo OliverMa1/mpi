@@ -527,14 +527,12 @@ namespace sat {
     bool ba_solver::init_watch(pb& p) {
         clear_watch(p);        
         if (p.lit() != null_literal && value(p.lit()) == l_false) {
-            //IF_VERBOSE(0, verbose_stream() << "negate: " << p.k() << "\n");
             p.negate();           
         }
         
         VERIFY(p.lit() == null_literal || value(p.lit()) == l_true);
         unsigned sz = p.size(), bound = p.k();
-        //IF_VERBOSE(0, verbose_stream() << "bound: " << p.k() << "\n");
-
+     
         // put the non-false literals into the head.
         unsigned slack = 0, slack1 = 0, num_watch = 0, j = 0;
         for (unsigned i = 0; i < sz; ++i) {
@@ -558,7 +556,7 @@ namespace sat {
             bool is_false = false;
             for (unsigned k = 0; k < sz; ++k) {
                 SASSERT(!is_false || value(p[k].second) == l_false);
-                SASSERT(k < j == (value(p[k].second) != l_false));
+                SASSERT((k < j) == (value(p[k].second) != l_false));
                 is_false = value(p[k].second) == l_false;
             });
 
@@ -1553,10 +1551,10 @@ namespace sat {
         if (k == 1 && lit == null_literal) {
             literal_vector _lits(lits);
             s().mk_clause(_lits.size(), _lits.c_ptr(), learned);
-            return 0;
+            return nullptr;
         }
         if (!learned && clausify(lit, lits.size(), lits.c_ptr(), k)) {
-            return 0;
+            return nullptr;
         }
         void * mem = m_allocator.allocate(card::get_obj_size(lits.size()));
         card* c = new (mem) card(next_id(), lit, lits, k);
@@ -1617,7 +1615,7 @@ namespace sat {
         bool units = true;
         for (wliteral wl : wlits) units &= wl.first == 1;
         if (k == 0 && lit == null_literal) {
-            return 0;
+            return nullptr;
         }
         if (units || k == 1) {
             literal_vector lits;
@@ -1978,6 +1976,7 @@ namespace sat {
             for (unsigned i = 0; !found && i < c.k(); ++i) {
                 found = c[i] == l;
             }
+            CTRACE("ba",!found, s().display(tout << l << ":" << c << "\n"););
             SASSERT(found););
         
         // IF_VERBOSE(0, if (_debug_conflict) verbose_stream() << "ante " << l << " " << c << "\n");
@@ -2593,22 +2592,54 @@ namespace sat {
         return literal(v, false);
     }
 
-    literal ba_solver::ba_sort::mk_max(literal l1, literal l2) {
-        VERIFY(l1 != null_literal);
-        VERIFY(l2 != null_literal);
-        if (l1 == m_true) return l1;
-        if (l2 == m_true) return l2;
-        if (l1 == ~m_true) return l2;
-        if (l2 == ~m_true) return l1;
-        literal max = fresh("max");
-        s.s().mk_clause(~l1, max);
-        s.s().mk_clause(~l2, max);
-        s.s().mk_clause(~max, l1, l2);
-        return max;
+
+    literal ba_solver::ba_sort::mk_max(unsigned n, literal const* lits) {
+        m_lits.reset();        
+        for (unsigned i = 0; i < n; ++i) {
+            if (lits[i] == m_true) return m_true;
+            if (lits[i] == ~m_true) continue;
+            m_lits.push_back(lits[i]);
+        }
+        switch (m_lits.size()) {
+        case 0: 
+            return ~m_true;
+        case 1: 
+            return m_lits[0];
+        default: {
+            literal max = fresh("max");
+            for (unsigned i = 0; i < n; ++i) {
+                s.s().mk_clause(~m_lits[i], max);
+            }
+            m_lits.push_back(~max);
+            s.s().mk_clause(m_lits.size(), m_lits.c_ptr());
+            return max;
+        }
+        }
     }
 
-    literal ba_solver::ba_sort::mk_min(literal l1, literal l2) {
-        return ~mk_max(~l1, ~l2);
+    literal ba_solver::ba_sort::mk_min(unsigned n, literal const* lits) {
+        m_lits.reset();        
+        for (unsigned i = 0; i < n; ++i) {
+            if (lits[i] == ~m_true) return ~m_true;
+            if (lits[i] == m_true) continue;
+            m_lits.push_back(lits[i]);
+        }
+        switch (m_lits.size()) {
+        case 0: 
+            return m_true;
+        case 1: 
+            return m_lits[0];
+        default: {
+            literal min = fresh("min");
+            for (unsigned i = 0; i < n; ++i) {
+                s.s().mk_clause(~min, m_lits[i]);
+                m_lits[i] = ~m_lits[i];
+            }
+            m_lits.push_back(min);
+            s.s().mk_clause(m_lits.size(), m_lits.c_ptr());
+            return min;
+        }
+        }
     }
 
     void ba_solver::ba_sort::mk_clause(unsigned n, literal const* lits) {
@@ -3374,7 +3405,7 @@ namespace sat {
             return;
         }
         for (wliteral l : p1) {
-            SASSERT(m_weights[l.second.index()] == 0);
+            SASSERT(m_weights.size() <= l.second.index() || m_weights[l.second.index()] == 0);
             m_weights.setx(l.second.index(), l.first, 0);
             mark_visited(l.second);  
         }
@@ -3806,8 +3837,8 @@ namespace sat {
         reset_active_var_set();
         m_wlits.reset();
         uint64_t sum = 0;
-        if (m_bound == 1) return 0;
-        if (m_overflow) return 0;
+        if (m_bound == 1) return nullptr;
+        if (m_overflow) return nullptr;
         
         for (bool_var v : m_active_vars) {
             int coeff = get_int_coeff(v);
@@ -3819,7 +3850,7 @@ namespace sat {
         }
 
         if (m_overflow || sum >= UINT_MAX/2) {
-            return 0;
+            return nullptr;
         }
         else {
             return add_pb_ge(null_literal, m_wlits, m_bound, true);
@@ -3874,7 +3905,7 @@ namespace sat {
             ++k;
         }
         if (k == 1) {
-            return 0;
+            return nullptr;
         }
         while (!m_wlits.empty()) {
             wliteral wl = m_wlits.back();
@@ -3897,7 +3928,7 @@ namespace sat {
                 ++num_max_level;
             }
         }
-        if (m_overflow) return 0;
+        if (m_overflow) return nullptr;
 
         if (slack >= k) {
 #if 0
@@ -3906,7 +3937,7 @@ namespace sat {
             std::cout << "not asserting\n";
             display(std::cout, m_A, true);
 #endif
-            return 0;
+            return nullptr;
         }
 
         // produce asserting cardinality constraint

@@ -92,7 +92,7 @@ struct goal2sat::imp {
 
     void throw_op_not_handled(std::string const& s) {
         std::string s0 = "operator " + s + " not supported, apply simplifier before invoking translator";
-        throw tactic_exception(s0.c_str());
+        throw tactic_exception(std::move(s0));
     }
     
     void mk_clause(sat::literal l) {
@@ -201,7 +201,6 @@ struct goal2sat::imp {
         case OP_NOT:
         case OP_OR:
         case OP_AND:
-        case OP_IFF:
             m_frame_stack.push_back(frame(to_app(t), root, sign, 0));
             return false;
         case OP_ITE:
@@ -452,7 +451,15 @@ struct goal2sat::imp {
         unsigned sz = m_result_stack.size();
         if (root) {
             m_result_stack.reset();
-            m_ext->add_pb_ge(sat::null_bool_var, wlits, k.get_unsigned());
+            unsigned k1 = k.get_unsigned();
+            if (sign) {
+                k1 = 1 - k1;
+                for (wliteral& wl : wlits) {
+                    wl.second.neg();
+                    k1 += wl.first;
+                }
+            }
+            m_ext->add_pb_ge(sat::null_bool_var, wlits, k1);
         }
         else {
             sat::bool_var v = m_solver.mk_var(true);
@@ -477,7 +484,15 @@ struct goal2sat::imp {
         unsigned sz = m_result_stack.size();
         if (root) {
             m_result_stack.reset();
-            m_ext->add_pb_ge(sat::null_bool_var, wlits, k.get_unsigned());
+            unsigned k1 = k.get_unsigned();
+            if (sign) {
+                k1 = 1 - k1;
+                for (wliteral& wl : wlits) {
+                    wl.second.neg();
+                    k1 += wl.first;
+                }
+            }
+            m_ext->add_pb_ge(sat::null_bool_var, wlits, k1);
         }
         else {
             sat::bool_var v = m_solver.mk_var(true);
@@ -630,7 +645,6 @@ struct goal2sat::imp {
             case OP_ITE:
                 convert_ite(t, root, sign);
                 break;
-            case OP_IFF:
             case OP_EQ:
                 convert_iff(t, root, sign);
                 break;
@@ -970,9 +984,9 @@ model_converter* sat2goal::mc::translate(ast_translation& translator) {
     return result;
 }
 
-void sat2goal::mc::collect(ast_pp_util& visitor) {
+void sat2goal::mc::set_env(ast_pp_util* visitor) {
     flush_gmc();
-    if (m_gmc) m_gmc->collect(visitor);
+    if (m_gmc) m_gmc->set_env(visitor);
 }
 
 void sat2goal::mc::display(std::ostream& out) {
@@ -1169,7 +1183,7 @@ struct sat2goal::imp {
     }
 
     void operator()(sat::solver & s, atom2bool_var const & map, goal & r, ref<mc> & mc) {
-        if (s.inconsistent()) {
+        if (s.at_base_lvl() && s.inconsistent()) {
             r.assert_expr(m.mk_false());
             return;
         }

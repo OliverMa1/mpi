@@ -1,7 +1,6 @@
 CC = g++
-CFLAGS =-I. -std=c++11 -I ../src/api/c++ -I ../src/api/ -L ../build/ -lz3
-CFLAGS += -Wall -g
-DEPS = teacher.h game.h parser.h
+CFLAGS =-I. -std=c++11 -I ./lib/src/api/c++ -I ./lib/src/api/ -L ./lib/ -lz3
+DEPS = teacher.h
 OBJ = main.o
 ODIR=.
 %.o: %.cpp $(DEPS)

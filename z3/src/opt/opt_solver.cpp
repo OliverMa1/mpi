@@ -230,11 +230,14 @@ namespace opt {
         get_model(m_model);
         inf_eps val2;
         m_valid_objectives[i] = true;
-        TRACE("opt", tout << (has_shared?"has shared":"non-shared") << "\n";);
+        TRACE("opt", tout << (has_shared?"has shared":"non-shared") << " " << val << "\n";);
         if (!m_models[i]) {
             set_model(i);
         }
-        if (m_context.get_context().update_model(has_shared)) {
+        if (!val.is_finite()) {
+            // skip model updates
+        }
+        else if (m_context.get_context().update_model(has_shared)) {
             if (has_shared && val != current_objective_value(i)) {
                 decrement_value(i, val);
             }
@@ -294,7 +297,8 @@ namespace opt {
         return r;
     }
     
-    void opt_solver::get_unsat_core(ptr_vector<expr> & r) {
+    void opt_solver::get_unsat_core(expr_ref_vector & r) {
+        r.reset();
         unsigned sz = m_context.get_unsat_core_size();
         for (unsigned i = 0; i < sz; i++) {
             r.push_back(m_context.get_unsat_core_expr(i));
