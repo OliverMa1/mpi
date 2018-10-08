@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/W32TeX) (preloaded format=pdflatex 2017.10.29)  22 SEP 2018 19:02
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/W32TeX) (preloaded format=pdflatex 2017.10.29)  6 OCT 2018 18:34
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -566,7 +566,19 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 )
 \Hy@SectionHShift=\skip49
 )
-\c@thm=\count109
+(d:/texlive/2017/texmf-dist/tex/latex/graphics/rotating.sty
+Package: rotating 2016/08/11 v2.16d rotated objects in LaTeX
+
+(d:/texlive/2017/texmf-dist/tex/latex/base/ifthen.sty
+Package: ifthen 2014/09/29 v1.1c Standard LaTeX ifthen package (DPC)
+)
+\c@r@tfl@t=\count109
+\rotFPtop=\skip50
+\rotFPbot=\skip51
+\rot@float@box=\box28
+\rot@mess@toks=\toks28
+)
+\c@thm=\count110
 
 (d:/texlive/2017/texmf-dist/tex/generic/babel/babel.sty
 Package: babel 2017/10/04 3.14 The Babel package
@@ -583,7 +595,7 @@ File: babel.def 2017/10/04 3.14 Babel common definitions
 (d:/texlive/2017/texmf-dist/tex/generic/babel/switch.def
 File: switch.def 2017/10/04 3.14 Babel switching mechanism
 )
-\babel@savecnt=\count110
+\babel@savecnt=\count111
 \U@D=\dimen118
 )
 \l@canadian = a dialect from \language\l@american 
@@ -605,115 +617,115 @@ Package pict2e Info: Driver file for pict2e: p2e-pdftex.def on input line 121.
 (d:/texlive/2017/texmf-dist/tex/latex/pict2e/p2e-pdftex.def
 File: p2e-pdftex.def 2016/02/05 v0.1u Driver-dependant file (RN,HjG,JT)
 )
-\pIIe@GRAPH=\toks28
+\pIIe@GRAPH=\toks29
 \@arclen=\dimen119
 \@arcrad=\dimen120
 \@tempdimd=\dimen121
 )
-\c@treecount=\count111
-\c@branchcount=\count112
-\parentbox=\box28
-\treebox=\box29
-\treeboxone=\box30
-\treeboxtwo=\box31
-\treeboxthree=\box32
-\treeboxfour=\box33
-\treeboxfive=\box34
-\treeboxsix=\box35
-\treeboxseven=\box36
-\treeboxeight=\box37
-\treeboxnine=\box38
-\treeboxten=\box39
-\treeboxeleven=\box40
-\treeboxtwelve=\box41
-\treeboxthirteen=\box42
-\treeboxfourteen=\box43
-\treeboxfifteen=\box44
-\treeboxsixteen=\box45
-\treeboxseventeen=\box46
-\treeboxeighteen=\box47
-\treeboxnineteen=\box48
-\treeboxtwenty=\box49
-\treeoffsetone=\skip50
-\treeoffsettwo=\skip51
-\treeoffsetthree=\skip52
-\treeoffsetfour=\skip53
-\treeoffsetfive=\skip54
-\treeoffsetsix=\skip55
-\treeoffsetseven=\skip56
-\treeoffseteight=\skip57
-\treeoffsetnine=\skip58
-\treeoffsetten=\skip59
-\treeoffseteleven=\skip60
-\treeoffsettwelve=\skip61
-\treeoffsetthirteen=\skip62
-\treeoffsetfourteen=\skip63
-\treeoffsetfifteen=\skip64
-\treeoffsetsixteen=\skip65
-\treeoffsetseventeen=\skip66
-\treeoffseteighteen=\skip67
-\treeoffsetnineteen=\skip68
-\treeoffsettwenty=\skip69
-\treeshiftone=\skip70
-\treeshifttwo=\skip71
-\treeshiftthree=\skip72
-\treeshiftfour=\skip73
-\treeshiftfive=\skip74
-\treeshiftsix=\skip75
-\treeshiftseven=\skip76
-\treeshifteight=\skip77
-\treeshiftnine=\skip78
-\treeshiftten=\skip79
-\treeshifteleven=\skip80
-\treeshifttwelve=\skip81
-\treeshiftthirteen=\skip82
-\treeshiftfourteen=\skip83
-\treeshiftfifteen=\skip84
-\treeshiftsixteen=\skip85
-\treeshiftseventeen=\skip86
-\treeshifteighteen=\skip87
-\treeshiftnineteen=\skip88
-\treeshifttwenty=\skip89
-\treewidthone=\skip90
-\treewidthtwo=\skip91
-\treewidththree=\skip92
-\treewidthfour=\skip93
-\treewidthfive=\skip94
-\treewidthsix=\skip95
-\treewidthseven=\skip96
-\treewidtheight=\skip97
-\treewidthnine=\skip98
-\treewidthten=\skip99
-\treewidtheleven=\skip100
-\treewidthtwelve=\skip101
-\treewidththirteen=\skip102
-\treewidthfourteen=\skip103
-\treewidthfifteen=\skip104
-\treewidthsixteen=\skip105
-\treewidthseventeen=\skip106
-\treewidtheighteen=\skip107
-\treewidthnineteen=\skip108
-\treewidthtwenty=\skip109
-\daughteroffsetone=\skip110
-\daughteroffsettwo=\skip111
-\daughteroffsetthree=\skip112
-\daughteroffsetfour=\skip113
-\branchwidthone=\skip114
-\branchwidthtwo=\skip115
-\branchwidththree=\skip116
-\branchwidthfour=\skip117
-\parentoffset=\skip118
-\treeoffset=\skip119
-\daughteroffset=\skip120
-\branchwidth=\skip121
-\parentwidth=\skip122
-\treewidth=\skip123
-\qta=\toks29
-\qtb=\toks30
-\nbranches=\count113
-\qroofx=\count114
-\qroofy=\count115
-\@qrscratchbox=\box50
+\c@treecount=\count112
+\c@branchcount=\count113
+\parentbox=\box29
+\treebox=\box30
+\treeboxone=\box31
+\treeboxtwo=\box32
+\treeboxthree=\box33
+\treeboxfour=\box34
+\treeboxfive=\box35
+\treeboxsix=\box36
+\treeboxseven=\box37
+\treeboxeight=\box38
+\treeboxnine=\box39
+\treeboxten=\box40
+\treeboxeleven=\box41
+\treeboxtwelve=\box42
+\treeboxthirteen=\box43
+\treeboxfourteen=\box44
+\treeboxfifteen=\box45
+\treeboxsixteen=\box46
+\treeboxseventeen=\box47
+\treeboxeighteen=\box48
+\treeboxnineteen=\box49
+\treeboxtwenty=\box50
+\treeoffsetone=\skip52
+\treeoffsettwo=\skip53
+\treeoffsetthree=\skip54
+\treeoffsetfour=\skip55
+\treeoffsetfive=\skip56
+\treeoffsetsix=\skip57
+\treeoffsetseven=\skip58
+\treeoffseteight=\skip59
+\treeoffsetnine=\skip60
+\treeoffsetten=\skip61
+\treeoffseteleven=\skip62
+\treeoffsettwelve=\skip63
+\treeoffsetthirteen=\skip64
+\treeoffsetfourteen=\skip65
+\treeoffsetfifteen=\skip66
+\treeoffsetsixteen=\skip67
+\treeoffsetseventeen=\skip68
+\treeoffseteighteen=\skip69
+\treeoffsetnineteen=\skip70
+\treeoffsettwenty=\skip71
+\treeshiftone=\skip72
+\treeshifttwo=\skip73
+\treeshiftthree=\skip74
+\treeshiftfour=\skip75
+\treeshiftfive=\skip76
+\treeshiftsix=\skip77
+\treeshiftseven=\skip78
+\treeshifteight=\skip79
+\treeshiftnine=\skip80
+\treeshiftten=\skip81
+\treeshifteleven=\skip82
+\treeshifttwelve=\skip83
+\treeshiftthirteen=\skip84
+\treeshiftfourteen=\skip85
+\treeshiftfifteen=\skip86
+\treeshiftsixteen=\skip87
+\treeshiftseventeen=\skip88
+\treeshifteighteen=\skip89
+\treeshiftnineteen=\skip90
+\treeshifttwenty=\skip91
+\treewidthone=\skip92
+\treewidthtwo=\skip93
+\treewidththree=\skip94
+\treewidthfour=\skip95
+\treewidthfive=\skip96
+\treewidthsix=\skip97
+\treewidthseven=\skip98
+\treewidtheight=\skip99
+\treewidthnine=\skip100
+\treewidthten=\skip101
+\treewidtheleven=\skip102
+\treewidthtwelve=\skip103
+\treewidththirteen=\skip104
+\treewidthfourteen=\skip105
+\treewidthfifteen=\skip106
+\treewidthsixteen=\skip107
+\treewidthseventeen=\skip108
+\treewidtheighteen=\skip109
+\treewidthnineteen=\skip110
+\treewidthtwenty=\skip111
+\daughteroffsetone=\skip112
+\daughteroffsettwo=\skip113
+\daughteroffsetthree=\skip114
+\daughteroffsetfour=\skip115
+\branchwidthone=\skip116
+\branchwidthtwo=\skip117
+\branchwidththree=\skip118
+\branchwidthfour=\skip119
+\parentoffset=\skip120
+\treeoffset=\skip121
+\daughteroffset=\skip122
+\branchwidth=\skip123
+\parentwidth=\skip124
+\treewidth=\skip125
+\qta=\toks30
+\qtb=\toks31
+\nbranches=\count114
+\qroofx=\count115
+\qroofy=\count116
+\@qrscratchbox=\box51
 )
 (d:/texlive/2017/texmf-dist/tex/latex/tools/tabularx.sty
 Package: tabularx 2016/02/03 v2.11 `tabularx' package (DPC)
@@ -722,48 +734,48 @@ Package: tabularx 2016/02/03 v2.11 `tabularx' package (DPC)
 Package: array 2016/10/06 v2.4d Tabular extension package (FMi)
 \col@sep=\dimen122
 \extrarowheight=\dimen123
-\NC@list=\toks31
-\extratabsurround=\skip124
-\backup@length=\skip125
+\NC@list=\toks32
+\extratabsurround=\skip126
+\backup@length=\skip127
 )
 \TX@col@width=\dimen124
 \TX@old@table=\dimen125
 \TX@old@col=\dimen126
 \TX@target=\dimen127
 \TX@delta=\dimen128
-\TX@cols=\count116
-\TX@ftn=\toks32
+\TX@cols=\count117
+\TX@ftn=\toks33
 ) (./first_draft.aux)
 \openout1 = `first_draft.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 26.
-LaTeX Font Info:    ... okay on input line 26.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
 
 (d:/texlive/2017/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count117
+\scratchcounter=\count118
 \scratchdimen=\dimen129
-\scratchbox=\box51
-\nofMPsegments=\count118
-\nofMParguments=\count119
-\everyMPshowfont=\toks33
-\MPscratchCnt=\count120
+\scratchbox=\box52
+\nofMPsegments=\count119
+\nofMParguments=\count120
+\everyMPshowfont=\toks34
+\MPscratchCnt=\count121
 \MPscratchDim=\dimen130
-\MPnumerator=\count121
-\makeMPintoPDFobject=\count122
-\everyMPtoPDFconversion=\toks34
+\MPnumerator=\count122
+\makeMPintoPDFobject=\count123
+\everyMPtoPDFconversion=\toks35
 ) (d:/texlive/2017/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
 
@@ -781,8 +793,8 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-\AtBeginShipoutBox=\box52
-Package hyperref Info: Link coloring OFF on input line 26.
+\AtBeginShipoutBox=\box53
+Package hyperref Info: Link coloring OFF on input line 27.
 
 (d:/texlive/2017/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
@@ -790,192 +802,363 @@ Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
 (d:/texlive/2017/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
 Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
-\c@section@level=\count123
+\c@section@level=\count124
 )
-LaTeX Info: Redefining \ref on input line 26.
-LaTeX Info: Redefining \pageref on input line 26.
-LaTeX Info: Redefining \nameref on input line 26.
+LaTeX Info: Redefining \ref on input line 27.
+LaTeX Info: Redefining \pageref on input line 27.
+LaTeX Info: Redefining \nameref on input line 27.
 
 (./first_draft.out) (./first_draft.out)
 \@outlinefile=\write3
 \openout3 = `first_draft.out'.
 
-LaTeX Font Info:    Try loading font information for U+msa on input line 28.
+LaTeX Font Info:    Try loading font information for U+msa on input line 29.
 
 (d:/texlive/2017/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 28.
+LaTeX Font Info:    Try loading font information for U+msb on input line 29.
 
 (d:/texlive/2017/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-LaTeX Font Info:    Try loading font information for U+stmry on input line 28.
+LaTeX Font Info:    Try loading font information for U+stmry on input line 29.
 
 (d:/texlive/2017/texmf-dist/tex/latex/stmaryrd/ustmry.fd) [1
 
 {d:/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Try loading font information for U+euf on input line 56.
+LaTeX Font Info:    Try loading font information for U+euf on input line 58.
 
 (d:/texlive/2017/texmf-dist/tex/latex/amsfonts/ueuf.fd
 File: ueuf.fd 2013/01/14 v3.01 Euler Fraktur
 ) [2] [3]
-Overfull \hbox (1.95285pt too wide) in paragraph at lines 114--114
+Overfull \hbox (1.95285pt too wide) in paragraph at lines 116--116
 []\OT1/cmr/bx/n/12 Horn con-straints and how to use them with data points 
  []
 
 [4] [5]
-Overfull \hbox (1.17307pt too wide) in paragraph at lines 209--209
+Overfull \hbox (1.17307pt too wide) in paragraph at lines 211--211
 []\OT1/cmr/bx/n/14.4 Bounded De-ci-sion Tree Learner for Horn Sam-
  []
 
 [6]
-Underfull \hbox (badness 10000) in paragraph at lines 221--222
+Underfull \hbox (badness 10000) in paragraph at lines 223--224
 
  []
 
 
-Overfull \hbox (2.22958pt too wide) in paragraph at lines 227--228
+Overfull \hbox (2.22958pt too wide) in paragraph at lines 229--230
 []\OT1/cmr/bx/n/10 Definition 4.3. \OT1/cmr/m/it/10 We can aug-ment a sam-ple $
 \OML/cmm/m/it/10 S \OT1/cmr/m/n/10 = (\OML/cmm/m/it/10 X; C\OT1/cmr/m/n/10 )$ \
 OT1/cmr/m/it/10 to ob-tain a \OT1/cmr/m/n/10 m-augmented
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 241--242
+Underfull \hbox (badness 10000) in paragraph at lines 243--244
 
  []
 
 [7]
-Underfull \hbox (badness 10000) in paragraph at lines 269--270
+Underfull \hbox (badness 10000) in paragraph at lines 271--272
 
  []
 
 [8] [9]
-Overfull \hbox (12.99316pt too wide) in paragraph at lines 294--295
+Overfull \hbox (12.99316pt too wide) in paragraph at lines 296--297
 []\OT1/cmr/m/it/10 Evasion game: \OT1/cmr/m/n/10 Two robots are mov-ing in an i
 n-fi-nite, dis-crete two-dimensional
  []
 
-[10]
-Overfull \hbox (4.248pt too wide) in paragraph at lines 321--321
-[]|\OT1/cmr/m/n/10 Diagonal| 
+
+Overfull \hbox (6.88039pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 Iter.| 
  []
 
 
-Overfull \hbox (4.248pt too wide) in paragraph at lines 321--321
+Overfull \hbox (5.46371pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 Size| 
+ []
+
+
+Overfull \hbox (5.58524pt too wide) in paragraph at lines 323--323
+[]|$\OML/cmm/m/it/10 Pos$| 
+ []
+
+
+Overfull \hbox (7.15117pt too wide) in paragraph at lines 323--323
+[]|$\OML/cmm/m/it/10 Neg$| 
+ []
+
+
+Overfull \hbox (1.91505pt too wide) in paragraph at lines 323--323
+[]|$\OML/cmm/m/it/10 Ex$| 
+ []
+
+
+Overfull \hbox (5.60698pt too wide) in paragraph at lines 323--323
+[]|$\OML/cmm/m/it/10 Uni$| 
+ []
+
+
+Overfull \hbox (6.88039pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 Iter.| 
+ []
+
+
+Overfull \hbox (5.46371pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 Size| 
+ []
+
+
+Overfull \hbox (5.58524pt too wide) in paragraph at lines 323--323
+[]|$\OML/cmm/m/it/10 Pos$| 
+ []
+
+
+Overfull \hbox (7.15117pt too wide) in paragraph at lines 323--323
+[]|$\OML/cmm/m/it/10 Neg$| 
+ []
+
+
+Overfull \hbox (1.91505pt too wide) in paragraph at lines 323--323
+[]|$\OML/cmm/m/it/10 Ex$| 
+ []
+
+
+Overfull \hbox (5.60698pt too wide) in paragraph at lines 323--323
+[]|$\OML/cmm/m/it/10 Uni$| 
+ []
+
+
+Overfull \hbox (6.88039pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 Iter.| 
+ []
+
+
+Overfull \hbox (5.46371pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 Size| 
+ []
+
+
+Overfull \hbox (5.58524pt too wide) in paragraph at lines 323--323
+[]|$\OML/cmm/m/it/10 Pos$| 
+ []
+
+
+Overfull \hbox (7.15117pt too wide) in paragraph at lines 323--323
+[]|$\OML/cmm/m/it/10 Neg$| 
+ []
+
+
+Overfull \hbox (1.91505pt too wide) in paragraph at lines 323--323
+[]|$\OML/cmm/m/it/10 Ex$| 
+ []
+
+
+Overfull \hbox (5.60698pt too wide) in paragraph at lines 323--323
+[]|$\OML/cmm/m/it/10 Uni$| 
+ []
+
+
+Overfull \hbox (4.60689pt too wide) in paragraph at lines 323--323
 []|\OT1/cmr/m/n/10 Diagonal
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 321--321
+Overfull \hbox (2.86101pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 2.929| 
+ []
+
+
+Overfull \hbox (2.86101pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 0.641| 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 323--323
 []|\OT1/cmr/m/n/10 Box
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 321--321
-[]|\OT1/cmr/m/n/10 Solitary
+Overfull \hbox (2.86101pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 0.202| 
  []
 
 
-Overfull \hbox (6.80354pt too wide) in paragraph at lines 321--321
+Overfull \hbox (2.86101pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 0.697| 
+ []
+
+
+Overfull \hbox (2.86101pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 5.206| 
+ []
+
+
+Overfull \hbox (3.24152pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 237| 
+ []
+
+
+Overfull \hbox (3.24152pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 219| 
+ []
+
+
+Overfull \hbox (7.86102pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 44.097| 
+ []
+
+
+Overfull \hbox (3.24152pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 181| 
+ []
+
+
+Overfull \hbox (3.24152pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 129| 
+ []
+
+
+Overfull \hbox (3.24152pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 311| 
+ []
+
+
+Overfull \hbox (3.24152pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 287| 
+ []
+
+
+Overfull \hbox (3.24152pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 352| 
+ []
+
+
+Overfull \hbox (3.24152pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 273| 
+ []
+
+
+Overfull \hbox (7.16243pt too wide) in paragraph at lines 323--323
 []|\OT1/cmr/m/n/10 Program-
  []
 
 
-Overfull \hbox (7.0258pt too wide) in paragraph at lines 321--321
-[]|\OT1/cmr/m/n/10 Laufband| 
+Overfull \hbox (2.86101pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 1.129| 
  []
 
 
-Overfull \hbox (2.19244pt too wide) in paragraph at lines 321--321
+Overfull \hbox (2.55133pt too wide) in paragraph at lines 323--323
 []|\OT1/cmr/m/n/10 Quadrat
  []
 
 
-Overfull \hbox (2.19244pt too wide) in paragraph at lines 321--321
+Overfull \hbox (2.86101pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 6.213| 
+ []
+
+
+Overfull \hbox (2.55133pt too wide) in paragraph at lines 323--323
 []|\OT1/cmr/m/n/10 Quadrat
  []
 
 
-Overfull \hbox (9.38692pt too wide) in paragraph at lines 321--321
-[]|\OT1/cmr/m/n/10 Multitank
+Overfull \hbox (2.86101pt too wide) in paragraph at lines 323--323
+[]|\OT1/cmr/m/n/10 4.195| 
+ []
+
+<table2.png, id=173, 689.57625pt x 302.63063pt>
+File: table2.png Graphic file (type png)
+<use table2.png>
+Package pdftex.def Info: table2.png  used on input line 329. on input line 329.
+
+Package pdftex.def Info: Requested size: 398.33858pt x 174.81937pt on input lin
+e 329.
+
+Overfull \hbox (53.33858pt too wide) in paragraph at lines 329--330
+ [][] 
  []
 
 
-Overfull \hbox (20.11537pt too wide) in alignment at lines 321--321
-[][][][][][][][] 
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<experiments.png, id=174, 687.31781pt x 386.19281pt>
+File: experiments.png Graphic file (type png)
+<use experiments.png>
+Package pdftex.def Info: experiments.png  used on input line 335. on input line
+ 335.
+Package pdftex.def Info: Requested size: 455.24408pt x 255.79552pt on input lin
+e 335.
+
+Overfull \hbox (110.24408pt too wide) in paragraph at lines 335--336
+ [][] 
  []
 
-[11] [12] (./first_draft.bbl) [13]
-<laufband.png, id=201, 926.46124pt x 241.90375pt>
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[10] [11] [12 <./table2.png>] [13 <./experiments.png>] (./first_draft.bbl)
+[14]
+<laufband.png, id=210, 926.46124pt x 241.90375pt>
 File: laufband.png Graphic file (type png)
 <use laufband.png>
-Package pdftex.def Info: laufband.png  used on input line 339. on input line 33
-9.
+Package pdftex.def Info: laufband.png  used on input line 354. on input line 35
+4.
 Package pdftex.def Info: Requested size: 227.62204pt x 59.43118pt on input line
- 339.
-<wasser_tank.png, id=203, 1053.9375pt x 225.84375pt>
+ 354.
+<wasser_tank.png, id=212, 1053.9375pt x 225.84375pt>
 File: wasser_tank.png Graphic file (type png)
 <use wasser_tank.png>
-Package pdftex.def Info: wasser_tank.png  used on input line 348. on input line
- 348.
+Package pdftex.def Info: wasser_tank.png  used on input line 363. on input line
+ 363.
 Package pdftex.def Info: Requested size: 227.62204pt x 48.776pt on input line 3
-48.
-<quadrat.png, id=204, 397.485pt x 391.4625pt>
+63.
+<quadrat.png, id=213, 397.485pt x 391.4625pt>
 File: quadrat.png Graphic file (type png)
 <use quadrat.png>
-Package pdftex.def Info: quadrat.png  used on input line 355. on input line 355
+Package pdftex.def Info: quadrat.png  used on input line 370. on input line 370
 .
 Package pdftex.def Info: Requested size: 227.62204pt x 224.18124pt on input lin
-e 355.
-<multi_wasser_tank.png, id=205, 1053.9375pt x 426.59375pt>
+e 370.
+<multi_wasser_tank.png, id=214, 1053.9375pt x 426.59375pt>
 File: multi_wasser_tank.png Graphic file (type png)
 <use multi_wasser_tank.png>
-Package pdftex.def Info: multi_wasser_tank.png  used on input line 362. on inpu
-t line 362.
+Package pdftex.def Info: multi_wasser_tank.png  used on input line 377. on inpu
+t line 377.
 Package pdftex.def Info: Requested size: 227.62204pt x 92.13246pt on input line
- 362.
-<catch.png, id=206, 401.5pt x 401.5pt>
+ 377.
+<catch.png, id=215, 401.5pt x 401.5pt>
 File: catch.png Graphic file (type png)
 <use catch.png>
-Package pdftex.def Info: catch.png  used on input line 373. on input line 373.
+Package pdftex.def Info: catch.png  used on input line 388. on input line 388.
 Package pdftex.def Info: Requested size: 227.62204pt x 227.62596pt on input lin
-e 373.
-<zwei_geraden.png, id=207, 401.5pt x 401.5pt>
+e 388.
+<zwei_geraden.png, id=216, 401.5pt x 401.5pt>
 File: zwei_geraden.png Graphic file (type png)
 <use zwei_geraden.png>
-Package pdftex.def Info: zwei_geraden.png  used on input line 380. on input lin
-e 380.
+Package pdftex.def Info: zwei_geraden.png  used on input line 395. on input lin
+e 395.
 Package pdftex.def Info: Requested size: 227.62204pt x 227.62596pt on input lin
-e 380.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 383.
- [14 <./laufband.png> <./wasser_tank.png>]
-[15 <./quadrat.png> <./multi_wasser_tank.png>] [16 <./catch.png> <./zwei_gerade
-n.png (PNG copy)>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 383.
- (./first_draft.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 383.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 383.
+e 395.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 398.
+ [15 <./laufband.png> <./wasser_tank.png>] [16 <./quadrat.png> <./multi_wasser_
+tank.png>] [17 <./catch.png> <./zwei_geraden.png (PNG copy)>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 398.
 
-
-Package rerunfilecheck Warning: File `first_draft.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `first_draft.out':
-(rerunfilecheck)             Before: 65799C5C58D92CE4CEADDA46E015559F;631
-(rerunfilecheck)             After:  F1ED17D170D627A192E6C9398C5D2A18;695.
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 383.
+(./first_draft.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 398.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 398.
+Package rerunfilecheck Info: File `first_draft.out' has not changed.
+(rerunfilecheck)             Checksum: F1ED17D170D627A192E6C9398C5D2A18;695.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 398.
  ) 
 Here is how much of TeX's memory you used:
- 7488 strings out of 492990
- 102833 string characters out of 6136333
- 216837 words of memory out of 5000000
- 10816 multiletter control sequences out of 15000+600000
+ 7606 strings out of 492990
+ 104373 string characters out of 6136333
+ 243594 words of memory out of 5000000
+ 10926 multiletter control sequences out of 15000+600000
  14388 words of font info for 57 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  28i,15n,28p,1070b,497s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -995,10 +1178,10 @@ pe1/public/amsfonts/cm/cmsy7.pfb><d:/texlive/2017/texmf-dist/fonts/type1/public
 /euler/eufm10.pfb><d:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/symbo
 ls/msam10.pfb><d:/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/symbols/m
 sbm10.pfb>
-Output written on first_draft.pdf (16 pages, 464354 bytes).
+Output written on first_draft.pdf (17 pages, 562095 bytes).
 PDF statistics:
- 310 PDF objects out of 1000 (max. 8388607)
- 261 compressed objects within 3 object streams
+ 318 PDF objects out of 1000 (max. 8388607)
+ 266 compressed objects within 3 object streams
  99 named destinations out of 1000 (max. 500000)
- 111 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 129 words of extra memory for PDF output out of 10000 (max. 10000000)
 

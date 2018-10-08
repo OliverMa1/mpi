@@ -8,6 +8,7 @@
 \usepackage{stmaryrd}
 \usepackage{url}
 \usepackage{hyperref}
+\usepackage{rotating}
 \newtheorem{thm}{Theorem}[section]
 \newtheorem{lem}[thm]{Lemma}
 \newtheorem{cor}[thm]{Corollary}
@@ -25,6 +26,7 @@
 
 \begin{document}
 \maketitle
+
 \begin{abstract}
 Infinite-duration two-person games are a popular formalism for synthesizing reactive controllers. In this work, we consider safety games (which arise from safety specifications) and show how safety controllers can be computed using machine learning. At the heart of our approach lies a novel decision tree learning algorithm that learns from Horn constraints and has recently been developed for the verification of concurrent programs. We implement a teacher and show how we can use the Horn learner to synthesize a controller. Furthermore, we show that there is a bounded algorithm that guarantees the learning process to terminate in polynomial time.
 \end{abstract}
@@ -286,7 +288,7 @@ We conducted the experiments on a intel core i3-4005U with Ubuntu 18.04 as opera
 We considered following examples, for an detailed explanation we refer to the appendix:
 
 \begin{enumerate}
-\item \emph{Diagonal game:} In this game we have an infinite, discrete two-dimensional grid world and a robot. Both players can move the robot in an vertical, horizontal or diagonal direction by one cell. Player 0 wins if the robot stays within two cell around the diagonal.
+
 \item \emph{Limited Diagonal game:} A variation of the diagonal game, used in "An Automaton Learning Approach to Solving Safety Games over Infinite Graphs" \cite{neider2016automaton}. Player 0 can only control the robot's vertical movement and Player 1 the horizontal.
 \item \emph{Box game:} A variation of the diagonal game. Player 0 wins if the robot stays within a horizontal stripe of width tree.
 \item \emph{Limited Box game:} A variation of the box game, used in "An Automaton Learning Approach to Solving Safety Games over Infinite Graphs" \cite{neider2016automaton}. Player 0 can only control the robot's vertical movement and Player 1 the horizontal.
@@ -294,34 +296,47 @@ We considered following examples, for an detailed explanation we refer to the ap
 \item \emph{Evasion game:} Two robots are moving in an infinite, discrete two-dimensional grid world. The robots take turns moving at most one cell in any direction. Both players control one robot. Player 0's objective is to avoid getting caught by Player 1's robot.
 \item \emph{Follow game:} A version of the evasion game where Player 0's objective is to keep the robot within a distance of two cells. (Manhattan distance)
 \item \emph{Program repair game:} The program-repair game described by Beyene et al. \cite{beyene2014constraint}
-\item \emph{Track game:} One Robot is moving on a infinte track. Both players control the robot and can decide to move the robot left, right or stay. The objective of Player 0 is to stay in a safe area.
 \item \emph{Square game:} A variation of the box game, where the space Player 0 is allowed to move is limited to a square.
-\item \emph{Multi Track game:} A variation of the track game with multiple tracks and one robot per track.
+
 \end{enumerate}
 
-\begin{table}[h]
- \caption{Results of the Experiments}
-\begin{tabularx}{\textwidth}{p{0.1\textwidth}p{0.1\textwidth} p{0.1\textwidth} p{0.1\textwidth}p{0.1\textwidth} p{0.1\textwidth} p{0.1\textwidth} p{0.08\textwidth}}
-\hline
-& \multicolumn{7}{c}{Horn Learner}\\ \hline
-Game & Time in s & Iter.& Size & $|Pos|$ & $|Neg|$ & $|Ex|$ & $|Uni|$ \\ \hline
-Diagonal & 4.435 & 25 & 6 & 11 & 7 & 4 & 2 \\ 
-Diagonal Limited & 2.929 & 24 & 6 & 11 & 6 & 4 & 2 \\ 
-Box & 0.641 & 9 & 4 & 2 & 3 & 0 & 3 \\
-Box Limited & 0.202 & 4 & 3 & 1 & 2 & 0 & 0 \\
-Solitary Box & 0.697 & 4 & 3 & 1 & 2 & 0 & 0 \\
-Evasion & 5.206 & 16 & 4 & 1 & 4 & 7 & 3 \\ 
-Follow & 44.097 & 181 & 14 & 1 & 129 & 32 & 18 \\ 
-Program-repair & 1.129 & 14 & 11 & 1 & 2 & 10 & 0 \\
-Laufband & 0.982 & 5 & 3 & 1 & 1 & 1 & 1 \\ 
-Quadrat 3x3 & 6.213 & 61 & 13 & 1 & 18 & 19 & 22 \\
-Quadrat 5x5 & 4.195 & 41 & 16 & 1 & 13 & 16 & 10 \\
-Multitank 3 & 10.722 & 115& 12 & 1 & 82 & 10 & 21 \\
+
+
+
+\begin{sidewaystable}
+\centering
+
+	\begin{tabularx}{\textwidth}{p{1.2cm}p{0.7cm}XXXXXXp{1.2cm}XXXXXXp{1.2cm}XXXXXX}
+	\hline
+	& \multicolumn{7}{c}{Horn Learner} & \multicolumn{7}{c}{Sat Learner}& \multicolumn{7}{c}{RPNI Learner}\\ \hline
+	Game  & T& Iter.& Size & $Pos$ & $Neg$ & $Ex$ & $Uni$& T & 		Iter.& Size & $Pos$ & $Neg$ & $Ex$ & $Uni$& T& 		Iter.& Size & $Pos$ & $Neg$ & $Ex$ & $Uni$ \\ \hline
+	Diagonal Limited & 2.929 & 24 & 6 & 11 & 6 & 4 & 2 & 2.891 & 64 & 4& 1 & 56 & 3 & 3 & 1.789 & 64 & 4 & 1 & 49 & 8 & 5\\ 
+	Box & 0.641 & 9 & 4 & 2 & 3 & 0 & 3 & 2.024 & 45 & 5 & 1 & 41 & 0 & 2 & 0.906 & 16 & 6 & 1 & 11 & 0 & 3\\
+	Box Limited & 0.202 & 4 & 3 & 1 & 2 & 0 & 0 & 1.212 & 36 & 4 & 1 & 33 & 0 & 1 & 0.599 & 15 & 5 & 1 & 10 & 1 & 2 \\
+	Solitary Box & 0.697 & 4 & 3 & 1 & 2 & 0 & 0 & 5.812 & 76 & 6 & 2 & 70 & 3 & 0 & 0.423 & 16 & 6 & 1 & 13 & 1 & 0\\
+	Evasion & 5.206 & 16 & 4 & 1 & 4 & 7 & 3 & 751.919 & 237 & 7 & 2 & 219 & 7 & 8 & 2.606 & 82 & 11 & 1 & 62 & 9 & 9\\ 
+	Follow & 44.097 & 181 & 14 & 1 & 129 & 32 & 18 & 307.693 & 311 & 7 & 2 & 287 & 9 & 12 & 18.922 & 352 & 16 & 1 & 273 & 33 & 44\\ 
+	Program-repair & 1.129 & 14 & 11 & 1 & 2 & 10 & 0 & 3.249 & 71 & 3 & 2 & 64 & 4 & 0 & 0.239 & 7 & 3 & 1 & 2 & 3 & 0\\
+	Quadrat 3x3 & 6.213 & 61 & 13 & 1 & 18 & 19 & 22 & \multicolumn{7}{c}{timeout} & 1.267 & 35 & 12 & 1 & 30 & 0 & 3\\
+	Quadrat 5x5 & 4.195 & 41 & 16 & 1 & 13 & 16 & 10 & \multicolumn{7}{c}{timeout} & 1.398 & 39 & 14 & 1 & 31 & 1 & 5\\
 
 \end{tabularx}
- \label{tab:TESTS} 
-\end{table}
 
+\end{sidewaystable}
+\begin{figure}[h]
+  \caption{Summary of results on games over infinite arenas}
+  \centering
+    {\includegraphics[width=14.0cm]{table2.png}} 
+\end{figure}
+
+\begin{figure}[h]
+  \caption{Results of Scalability benchmark}
+  \centering
+    {\includegraphics[width=16.0cm]{experiments.png}} 
+\end{figure}
+
+
+\paragraph*{Scalability.} To compare the scalability of our tool we model a problem on an one dimensional grid-world which consists of \emph{m} cells. Only the right most cell is considered unsafe, while every other cell is considered safe. The system and the environment take turns controlling a robot. The system can move the robot one cell to the left or stay, the environment can move the robot one to the right or stay. But the system is more restricted, because if the robot reaches one cell that is right of cell $\left \lfloor{\frac{m}{2}}\right \rfloor $, the system is not able to move left anymore. This makes the winning set a subset of the cells left of cell $\left \lfloor{\frac{m}{2}}\right \rfloor $.
 \newpage
 \section{Conclusion}
 
