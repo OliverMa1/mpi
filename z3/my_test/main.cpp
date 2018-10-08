@@ -633,7 +633,7 @@ int main(int argc, char* argv[])
 				std::cout << "Time taken for the learner: " << duration << " milliseconds " << std::endl;
 				hypothesis_edges_test  = hypothesis.substitute(variables_vector,variables_dash_vector);
 				safety_counter++;
-				if (safety_counter >= 500)
+				if (safety_counter >= 1500)
 				{
 					flag = false;
 					std::cout << "Safety counter reached" << std::endl;
